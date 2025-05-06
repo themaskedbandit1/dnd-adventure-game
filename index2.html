@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Choose Your Own Adventure</title>
+    <style>
+        /* Global styles */
+        :root {
+            --primary-color: #7b0d0d;
+            --secondary-color: #854d0e;
+            --tertiary-color: #3e2723;
+            --background-color: #f5e9d6;
+            --text-color: #2e1a12;
+            --highlight-color: #ffcc80;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23873d08' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+
+        /* Header styles */
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border-bottom: 3px double var(--tertiary-color);
+        }
+
+        .game-title {
+            font-size: 3rem;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .game-subtitle {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            font-style: italic;
+        }
+
+        /* Main container styles */
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--tertiary-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        /* Character creation styles */
+        #character-creation {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .character-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--tertiary-color);
+            padding-bottom: 5px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .option-card {
+            border: 1px solid var(--tertiary-color);
+            border-radius: 5px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: var(--highlight-color);
+        }
+
+        .option-card.selected {
+            background-color: var(--highlight-color);
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .option-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .option-description {
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .character-name-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--tertiary-color);
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        /* Button styles */
+        .game-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-family: inherit;
+            font-weight: bold;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .game-button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .game-button:active {
+            transform: translateY(0);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Story section styles */
+        #story-section {
+            display: none;
+        }
+
+        .story-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+            text-align: justify;
+        }
+
+        .choice-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            margin: 10px 0;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .choice-button:hover {
+            background-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        /* Character sheet styles */
+        .character-sheet {
+            background-color: #f8f1e4;
+            border: 1px solid var(--tertiary-color);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .character-sheet-title {
+            width: 100%;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            border-bottom: 1px dashed var(--tertiary-color);
+            padding-bottom: 5px;
+        }
+
+        .character-attribute {
+            flex: 1 0 30%;
+            min-width: 150px;
+        }
+
+        .attribute-label {
+            font-weight: bold;
+            margin-right: 5px;
+            color: var(--tertiary-color);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .game-container {
+                padding: 20px;
+            }
+
+            .game-title {
+                font-size: 2rem;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .character-sheet {
+                flex-direction: column;
+            }
+
+            .character-attribute {
+                width: 100%;
+            }
+        }
+
+        /* Status effects */
+        .status-effect {
+            display: inline-block;
+            margin: 0 5px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            background-color: #e0e0e0;
+        }
+
+        .status-good {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-bad {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        /* Dice styles */
+        .dice-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .dice {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            border: 2px solid var(--tertiary-color);
+            border-radius: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            color: var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .dice-label {
+            display: block;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            color: var(--tertiary-color);
+        }
+
+        .dice-rolling {
+            animation: diceRoll 0.5s ease-in-out infinite;
+        }
+
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* Inventory styles */
+        .inventory {
+            margin-top: 20px;
+            background-color: #f8f1e4;
+            border: 1px solid var(--tertiary-color);
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .inventory-title {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            border-bottom: 1px dashed var(--tertiary-color);
+            padding-bottom: 5px;
+        }
+
+        .inventory-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .inventory-item {
+            background-color: white;
+            border: 1px solid var(--tertiary-color);
+            border-radius: 5px;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        .inventory-item-name {
+            font-weight: bold;
+            color: var(--tertiary-color);
+        }
+
+        .inventory-item-desc {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #666;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--background-color);
+            margin: 10% auto;
+            padding: 30px;
+            border: 2px solid var(--tertiary-color);
+            border-radius: 10px;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--tertiary-color);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--tertiary-color);
+            padding-bottom: 10px;
+        }
+
+        /* Save/Load game styles */
+        .game-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .control-button {
+            background-color: var(--tertiary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Achievement notification */
+        .achievement {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            transform: translateX(120%);
+            transition: transform 0.4s ease-out;
+            max-width: 300px;
+        }
+
+        .achievement.show {
+            transform: translateX(0);
+        }
+
+        .achievement-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: loadingDots 1.5s infinite;
+        }
+
+        @keyframes loadingDots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <header class="game-header">
+        <h1 class="game-title">Dungeons & Decisions</h1>
+        <p class="game-subtitle">A Choose Your Own Adventure in the World of D&D</p>
+    </header>
+
+    <main class="game-container">
+        <!-- Game controls for saving/loading -->
+        <div class="game-controls" id="game-controls">
+            <button class="control-button" id="new-game-btn">New Game</button>
+            <button class="control-button" id="save-game-btn">Save Game</button>
+            <button class="control-button" id="load-game-btn">Load Game</button>
+        </div>
+
+        <!-- Character creation section -->
+        <section id="character-creation" class="fade-in">
+            <div class="character-section">
+                <h2 class="section-title">Create Your Adventurer</h2>
+                <p>Welcome, brave soul, to the realms of fantasy! Before embarking on your journey, you must forge your identity. Choose wisely, for your decisions will shape your destiny.</p>
+                
+                <div class="character-section">
+                    <h3>Choose Your Name</h3>
+                    <input type="text" id="character-name" class="character-name-input" placeholder="Enter your character's name">
+                </div>
+
+                <div class="character-section">
+                    <h3>Choose Your Race</h3>
+                    <div class="options-grid" id="race-options">
+                        <!-- Race options will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="character-section">
+                    <h3>Choose Your Class</h3>
+                    <div class="options-grid" id="class-options">
+                        <!-- Class options will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="button-container">
+                    <button id="start-adventure" class="game-button">Begin Your Adventure</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Story section -->
+        <section id="story-section" class="fade-in">
+            <div class="character-sheet" id="character-sheet">
+                <!-- Character sheet will be populated by JavaScript -->
+            </div>
+
+            <div class="story-content">
+                <p class="story-text" id="story-text"></p>
+                <div id="choices-container"></div>
+                <div class="inventory" id="inventory">
+                    <h3 class="inventory-title">Inventory</h3>
+                    <div class="inventory-items" id="inventory-items"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading indicator -->
+        <div class="loading" id="loading">
+            <p>Rolling the dice<span class="loading-dots"></span></p>
+        </div>
+    </main>
+
+    <!-- Achievement notification -->
+    <div class="achievement" id="achievement">
+        <div class="achievement-title">Achievement Unlocked!</div>
+        <div id="achievement-text"></div>
+    </div>
+
+    <!-- Modal for game save/load -->
+    <div class="modal" id="save-load-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2 class="modal-title" id="modal-title">Save Game</h2>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // Game data and logic
+        const game = {
+            // Game state
+            state: {
+                character: {
+                    name: "",
+                    race: "",
+                    class: "",
+                    level: 1,
+                    hp: 10,
+                    maxHp: 10,
+                    gold: 10,
+                    inventory: [],
+                    traits: [],
+                    stats: {
+                        strength: 10,
+                        dexterity: 10,
+                        constitution: 10,
+                        intelligence: 10,
+                        wisdom: 10,
+                        charisma: 10
+                    }
+                },
+                currentStoryNode: "start",
+                visitedNodes: [],
+                achievements: [],
+                statusEffects: []
+            },
+
+            // Race options with descriptions
+            races: [
+                {
+                    id: "human",
+                    name: "Human",
+                    description: "Adaptable and ambitious, humans are versatile adventurers comfortable in any setting.",
+                    bonuses: "All ability scores +1",
+                    stats: { strength: 1, dexterity: 1, constitution: 1, intelligence: 1, wisdom: 1, charisma: 1 }
+                },
+                {
+                    id: "elf",
+                    name: "Elf",
+                    description: "Graceful and long-lived, elves are magical beings of otherworldly grace.",
+                    bonuses: "Dexterity +2, Intelligence +1",
+                    stats: { dexterity: 2, intelligence: 1 }
+                },
+                {
+                    id: "dwarf",
+                    name: "Dwarf",
+                    description: "Hardy and steadfast, dwarves are stubborn folk known for their craftsmanship.",
+                    bonuses: "Constitution +2, Wisdom +1",
+                    stats: { constitution: 2, wisdom: 1 }
+                },
+                {
+                    id: "halfling",
+                    name: "Halfling",
+                    description: "Small and nimble, halflings are known for their luck and courage despite their size.",
+                    bonuses: "Dexterity +2, Charisma +1",
+                    stats: { dexterity: 2, charisma: 1 }
+                },
+                {
+                    id: "dragonborn",
+                    name: "Dragonborn",
+                    description: "Draconic humanoids with breath weapons and an innate sense of honor.",
+                    bonuses: "Strength +2, Charisma +1",
+                    stats: { strength: 2, charisma: 1 }
+                },
+                {
+                    id: "tiefling",
+                    name: "Tiefling",
+                    description: "Descendants of devils, tieflings combine human and infernal traits.",
+                    bonuses: "Charisma +2, Intelligence +1",
+                    stats: { charisma: 2, intelligence: 1 }
+                }
+            ],
+
+            // Class options with descriptions
+            classes: [
+                {
+                    id: "fighter",
+                    name: "Fighter",
+                    description: "Masters of martial combat, skilled with a variety of weapons and armor.",
+                    features: "Second Wind, Fighting Style",
+                    stats: { strength: 2, constitution: 1 },
+                    hp: 12
+                },
+                {
+                    id: "wizard",
+                    name: "Wizard",
+                    description: "Scholarly magic-users capable of manipulating the structures of reality.",
+                    features: "Arcane Recovery, Spellcasting",
+                    stats: { intelligence: 2, wisdom: 1 },
+                    hp: 8
+                },
+                {
+                    id: "rogue",
+                    name: "Rogue",
+                    description: "Stealthy and skilled, rogues are versatile masters of deception and subterfuge.",
+                    features: "Sneak Attack, Thieves' Cant",
+                    stats: { dexterity: 2, charisma: 1 },
+                    hp: 10
+                },
+                {
+                    id: "cleric",
+                    name: "Cleric",
+                    description: "Divine agents who wield the power of their deity to heal allies and smite foes.",
+                    features: "Divine Domain, Spellcasting",
+                    stats: { wisdom: 2, charisma: 1 },
+                    hp: 10
+                },
+                {
+                    id: "bard",
+                    name: "Bard",
+                    description: "Performers whose music and stories weave magic to inspire allies and hinder enemies.",
+                    features: "Bardic Inspiration, Spellcasting",
+                    stats: { charisma: 2, dexterity: 1 },
+                    hp: 9
+                },
+                {
+                    id: "barbarian",
+                    name: "Barbarian",
+                    description: "Fierce warriors who can enter a battle rage, harnessing primal fury in combat.",
+                    features: "Rage, Unarmored Defense",
+                    stats: { strength: 2, constitution: 1 },
+                    hp: 14
+                }
+            ],
+
+            // Story nodes for the adventure
+            storyNodes: {
+                // Starting node
+                "start": {
+                    text: "Your journey begins in the bustling town of Trollskull Alley, where adventurers gather to seek fortune and glory. The local tavern, 'The Drunken Dragon', serves as a hub for those seeking adventure. As you push open the creaking door, the smell of ale and roasted meat fills your nostrils. The tavern is crowded with a colorful assortment of patrons - from grizzled mercenaries to wide-eyed novices like yourself.",
+                    choices: [
+                        { text: "Approach the bar and order a drink", nextNode: "approach_bar" },
+                        { text: "Look for the quest board", nextNode: "quest_board" },
+                        { text: "Find an empty table and observe the room", nextNode: "observe_room" }
+                    ]
+                },
+
+                // Bar path
+                "approach_bar": {
+                    text: "You squeeze through the crowd and find an open spot at the bar. The bartender, a burly half-orc with a scar running down his face, approaches you. 'What'll it be, friend?' he asks, wiping a mug with a questionably clean rag.",
+                    choices: [
+                        { text: "Order an ale (Pay 1 gold)", nextNode: "order_ale", cost: 1 },
+                        { text: "Order the 'Dragon's Breath' special (Pay 3 gold)", nextNode: "order_special", cost: 3 },
+                        { text: "Ask what's free", nextNode: "ask_free" }
+                    ]
+                },
+                "order_ale": {
+                    text: "You slide a gold coin across the counter. 'Just an ale,' you say. The bartender nods, pours a frothy mug, and slides it back to you. As you sip your drink, a hooded figure sits next to you. 'New in town, eh?' the stranger says in a raspy voice. 'Looking for work?'",
+                    choices: [
+                        { text: "Express interest in work", nextNode: "mysterious_job" },
+                        { text: "Politely decline and move away", nextNode: "decline_stranger" },
+                        { text: "Ask who they are first", nextNode: "question_stranger" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Mug of Ale", description: "A frothy brew that restores 1 HP when consumed" } },
+                        { type: "gold", amount: -1 }
+                    ]
+                },
+                "order_special": {
+                    text: "You place three gold coins on the counter and ask for the Dragon's Breath special. The bartender raises an eyebrow, impressed. 'Brave soul,' he says, before mixing a concoction that glows with an eerie red light. You take a sip and immediately feel fire coursing through your veins. Several patrons cheer as you manage to down the drink without passing out. A dwarf slaps you on the back. 'Anyone who can handle the Dragon's Breath is a friend of mine! Name's Durgan, and I need someone with your fortitude for a delicate matter.'",
+                    choices: [
+                        { text: "Accept Durgan's offer", nextNode: "durgan_mine" },
+                        { text: "Thank him but say you have other plans", nextNode: "decline_durgan" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Dragon's Breath Flask", description: "A potent drink that gives +1 to Strength checks but -1 to Wisdom for an hour" } },
+                        { type: "gold", amount: -3 },
+                        { type: "hp", amount: -1 },
+                        { type: "statBoost", stat: "constitution", amount: 1, duration: "permanent" }
+                    ],
+                    classSpecific: {
+                        "barbarian": { 
+                            text: "As a barbarian, the fiery drink feels almost refreshing. Your display of strength impresses everyone in the tavern, and they raise their mugs in salute. The dwarf, Durgan, is particularly impressed. 'By Moradin's hammer! I've never seen anyone enjoy the Dragon's Breath like that! You must join me on my expedition to the Firemaw Mountains!'"
+                        }
+                    }
+                },
+                "ask_free": {
+                    text: "The bartender scowls at you. 'Water's free,' he grunts, filling a slightly dirty cup with water from a barrel. As you take a reluctant sip, a boisterous noble at the end of the bar laughs. 'Bartender, get this adventurer a proper drink on me!' He approaches you with a wide smile. 'Lord Percival Highcastle, at your service. I do love to help those new to our little town.'",
+                    choices: [
+                        { text: "Thank him for his generosity", nextNode: "thank_noble" },
+                        { text: "Ask why he's being so kind", nextNode: "question_noble" },
+                        { text: "Decline his offer politely", nextNode: "decline_noble" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Cup of Water", description: "It's just water..." } }
+                    ],
+                    classSpecific: {
+                        "rogue": { 
+                            text: "With your keen rogue senses, you immediately notice how the noble is subtly scanning your equipment while pretending to be friendly. His 'generosity' appears to be a ploy to assess whether you're worth robbing later.",
+                            choices: [
+                                { text: "Play along but remain vigilant", nextNode: "rogue_play_along" },
+                                { text: "Confront him about his intentions", nextNode: "confront_noble" },
+                                { text: "Excuse yourself and slip away", nextNode: "rogue_slip_away" }
+                            ]
+                        }
+                    }
+                },
+
+                // Quest board path
+                "quest_board": {
+                    text: "You make your way to the large wooden board hanging on the far wall of the tavern. Various parchments are pinned to it, each describing a different opportunity for adventure or employment. Three notices catch your eye:",
+                    choices: [
+                        { text: "Investigate missing shipments from the merchant guild", nextNode: "merchant_quest" },
+                        { text: "Explore newly discovered ruins in the Whispering Woods", nextNode: "ruins_quest" },
+                        { text: "Help catch a mysterious creature stealing from the local farms", nextNode: "creature_quest" }
+                    ]
+                },
+                "merchant_quest": {
+                    text: "You take down the notice about the missing shipments. As you examine it, a well-dressed halfling approaches you. 'Interested in our little problem, are you?' she asks, introducing herself as Merla Goldfinger, representative of the Merchant Guild. 'We've had three caravans disappear on the East Road in the past month. No bodies, no evidence of bandits, just... gone.'",
+                    choices: [
+                        { text: "Accept the job and ask for more details", nextNode: "accept_merchant_quest" },
+                        { text: "Negotiate for better pay first", nextNode: "negotiate_merchant" },
+                        { text: "Ask if anyone else has tried to solve this", nextNode: "ask_previous_attempts" }
+                    ]
+                },
+                "ruins_quest": {
+                    text: "The moment you touch the parchment about the ruins, a tall elf in dusty robes materializes beside you, making you jump. 'Ah, a kindred spirit of exploration!' he says with excitement. 'I am Thalanil Moonwhisper, scholar of the Arcane College. We've discovered ruins that may predate even elven civilization! But the woods have become... strange lately.'",
+                    choices: [
+                        { text: "Ask about the strange occurrences", nextNode: "ask_about_woods" },
+                        { text: "Inquire about payment for the expedition", nextNode: "ask_payment_ruins" },
+                        { text: "Ask what treasures might be found there", nextNode: "ask_treasures" }
+                    ],
+                    classSpecific: {
+                        "wizard": { 
+                            text: "As a wizard, you immediately recognize the name Thalanil Moonwhisper - he's a renowned archaeomancer whose papers on ancient magical civilizations you've studied. He recognizes your arcane aptitude instantly. 'A practitioner of the Art! How fortuitous! These ruins contain symbols I've never encountered in any known magical tradition. Perhaps your fresh perspective might help decipher them?'",
+                            choices: [
+                                { text: "Discuss magical theory with him", nextNode: "wizard_discuss_theory" },
+                                { text: "Ask if there are dangerous magical traps", nextNode: "wizard_ask_traps" },
+                                { text: "Offer to bring your spellbook to compare notes", nextNode: "wizard_spellbook" }
+                            ]
+                        }
+                    }
+                },
+                "creature_quest": {
+                    text: "You read about the mysterious creature stealing from farms. The poster describes missing livestock, strange tracks, and fearful farmers. As you read, a ruddy-faced man in simple clothes notices your interest. 'You thinkin' of helping us with our little problem?' he asks hopefully. 'Name's Horic, I own one of the affected farms. Lost three prize chickens and a goat last week alone!'",
+                    choices: [
+                        { text: "Ask to see the tracks and evidence", nextNode: "examine_tracks" },
+                        { text: "Ask what the creature looks like", nextNode: "ask_creature_description" },
+                        { text: "Agree to help immediately", nextNode: "agree_creature_help" }
+                    ],
+                    raceSpecific: {
+                        "dragonborn": { 
+                            text: "As Horic approaches, he stops short when he sees your dragonborn scales. 'Oh! Beggin' your pardon,' he stammers, 'but the creature... well, some say it's dragon-like. Scaly, with strange breath. Not that I'm implying anything!' he adds hastily, clearly uncomfortable. 'Just thought you might have special insight, being what you are...'",
+                            choices: [
+                                { text: "Assure him you're not offended and offer help", nextNode: "dragonborn_help" },
+                                { text: "Use his discomfort to negotiate better payment", nextNode: "dragonborn_negotiate" },
+                                { text: "Explain that not all draconic creatures are related", nextNode: "dragonborn_explain" }
+                            ]
+                        }
+                    }
+                },
+
+                // Observe room path
+                "observe_room": {
+                    text: "You find an empty table in the corner of the tavern and sit down, taking time to observe the patrons. In one corner, a bard entertains a small crowd with tales of heroism. At a large round table, several armored individuals are having a heated discussion over a map. Near the fireplace, an old man sits alone, occasionally glancing in your direction.",
+                    choices: [
+                        { text: "Approach the bard and listen to their tales", nextNode: "approach_bard" },
+                        { text: "Try to overhear the discussion about the map", nextNode: "overhear_map" },
+                        { text: "Meet the gaze of the old man by the fire", nextNode: "meet_old_man" }
+                    ]
+                },
+                "approach_bard": {
+                    text: "You move closer to the bard, a half-elf woman with silver-streaked hair and a lute adorned with intricate carvings. Her voice carries throughout the tavern as she sings of the legendary hero Drizzt Do'Urden and his adventures in the Underdark. As she finishes her song, she notices you and gives a friendly nod.",
+                    choices: [
+                        { text: "Compliment her performance", nextNode: "compliment_bard" },
+                        { text: "Ask if she knows any local legends", nextNode: "ask_local_legends" },
+                        { text: "Offer to buy her a drink", nextNode: "buy_bard_drink" }
+                    ],
+                    classSpecific: {
+                        "bard": { 
+                            text: "As a fellow bard, you immediately recognize her technical skill and emotional delivery. She notices your own bardic instruments and smiles knowingly. 'A colleague of the College! Would you care to join me for the next piece? I've been working on a harmony that requires a second voice.'",
+                            choices: [
+                                { text: "Perform a duet with her", nextNode: "bard_duet" },
+                                { text: "Share a composition of your own", nextNode: "bard_own_song" },
+                                { text: "Exchange tales of your travels", nextNode: "bard_exchange" }
+                            ]
+                        }
+                    }
+                },
+                "overhear_map": {
+                    text: "You casually position yourself near the group with the map. Without drawing attention, you manage to catch snippets of their conversation. They appear to be planning an expedition to a place called 'The Sunless Citadel.' Words like 'dragon,' 'cult,' and 'ancient fruit' stand out amid their discussion. One of them, a gruff-looking dwarf, suddenly turns and catches you listening.",
+                    choices: [
+                        { text: "Apologize for eavesdropping", nextNode: "apologize_eavesdropping" },
+                        { text: "Pretend you weren't listening", nextNode: "pretend_innocence" },
+                        { text: "Boldly ask to join their expedition", nextNode: "join_expedition" }
+                    ]
+                },
+                "meet_old_man": {
+                    text: "You meet the old man's gaze and he gestures for you to join him by the fire. As you approach, you notice his weathered face bears a complex network of scars, and despite his apparent age, his eyes are sharp and alert. 'Sit, traveler,' he says in a voice surprisingly strong. 'I've been watching you. You have the look of someone seeking... something.'",
+                    choices: [
+                        { text: "Ask who he is", nextNode: "ask_old_man_identity" },
+                        { text: "Ask what he means about 'seeking'", nextNode: "ask_about_seeking" },
+                        { text: "Politely decline and return to your table", nextNode: "decline_old_man" }
+                    ],
+                    raceSpecific: {
+                        "elf": { 
+                            text: "As you approach, the old man's eyes widen slightly at your elven features. 'Ah, one of the fair folk,' he says with a nod. 'You remind me of companions I traveled with long ago, in the days before the Spellplague. Tell me, do the elves of Evermeet still sing of Alustriel and her seven silver swords?'",
+                            choices: [
+                                { text: "Share what you know of elven history", nextNode: "elf_share_history" },
+                                { text: "Ask how a human knows such specific elven lore", nextNode: "elf_question_knowledge" },
+                                { text: "Indicate you're not familiar with those tales", nextNode: "elf_unfamiliar" }
+                            ]
+                        }
+                    }
+                },
+
+                // More story nodes following from the initial branches
+                // Bar path continuations
+                "mysterious_job": {
+                    text: "'Excellent,' the hooded figure whispers, sliding a sealed parchment across the counter. 'The Shadowhand Guild requires someone... uninvolved in local politics. Beneath the old clock tower at midnight. Bring this token.' They slip you a metal coin with a strange symbol. Before you can ask questions, they melt into the crowd.",
+                    choices: [
+                        { text: "Examine the coin closely", nextNode: "examine_token" },
+                        { text: "Ask the bartender about the Shadowhand Guild", nextNode: "ask_about_guild" },
+                        { text: "Plan to go to the clock tower at midnight", nextNode: "plan_midnight_meeting" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Mysterious Token", description: "A metal coin bearing the symbol of a gloved hand with an eye in the palm" } }
+                    ]
+                },
+                "decline_stranger": {
+                    text: "You politely decline the stranger's offer and move away from the bar. As you do, you notice the hooded figure watching you with narrowed eyes before turning to approach another patron. You feel you may have avoided something dangerous... or missed an opportunity.",
+                    choices: [
+                        { text: "Head to the quest board instead", nextNode: "quest_board" },
+                        { text: "Find a table and observe the room", nextNode: "observe_room" },
+                        { text: "Leave the tavern and explore the town", nextNode: "explore_town" }
+                    ]
+                },
+                "question_stranger": {
+                    text: "'Cautious. Good.' The figure pulls back their hood slightly, revealing a half-elven woman with a scar across her right eye. 'I represent interested parties who require discretion. My name is Selene, if you must know. Now, are you interested in coin or not?'",
+                    choices: [
+                        { text: "Express interest in the job", nextNode: "mysterious_job" },
+                        { text: "Ask for more details before committing", nextNode: "ask_job_details" },
+                        { text: "Decline politely", nextNode: "decline_stranger" }
+                    ]
+                },
+                "durgan_mine": {
+                    text: "Durgan leads you to a quieter corner of the tavern. 'My family's mine was closed after a tunnel collapse,' he explains, unrolling a rough map. 'But before the accident, we found something - a strange doorway with runes like I've never seen. The mining guild declared it too dangerous, but I know there's treasure behind that door. I need someone to help me slip past the guards and explore it.'",
+                    choices: [
+                        { text: "Ask about the danger level", nextNode: "ask_mine_danger" },
+                        { text: "Inquire about payment", nextNode: "ask_mine_payment" },
+                        { text: "Agree to help", nextNode: "agree_mine_help" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Mine Map", description: "A rough map showing the location of Durgan's family mine and the mysterious doorway" } }
+                    ]
+                },
+                "decline_durgan": {
+                    text: "You thank Durgan but explain you have other commitments. He looks disappointed but nods understanding. 'Fair enough. The offer stands if you change your mind.' As he walks away, a sleek halfling woman who was eavesdropping slides into the seat beside you. 'Smart choice,' she whispers. 'That mine is cursed. But I have a real opportunity if you're interested...'",
+                    choices: [
+                        { text: "Listen to the halfling's offer", nextNode: "halfling_offer" },
+                        { text: "Politely excuse yourself", nextNode: "excuse_from_halfling" },
+                        { text: "Ask about the mine curse", nextNode: "ask_about_curse" }
+                    ]
+                },
+                "thank_noble": {
+                    text: "You thank Lord Percival for his generosity. He orders you a fine ale and sits beside you. 'New adventurers are the lifeblood of our little town,' he says cheerfully. 'I always like to help newcomers find their footing. In fact, I might have a small task perfect for someone of your... particular talents.'",
+                    choices: [
+                        { text: "Ask about the task", nextNode: "ask_noble_task" },
+                        { text: "Ask about the town's history", nextNode: "ask_town_history" },
+                        { text: "Thank him but say you already have plans", nextNode: "decline_noble_task" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Fine Ale", description: "A high-quality brew that restores 2 HP when consumed and gives +1 to Charisma checks for an hour" } }
+                    ]
+                },
+                "question_noble": {
+                    text: "You raise an eyebrow and ask why he's being so kind to a stranger. Lord Percival laughs heartily. 'Skeptical! I appreciate that. In my position, one meets all sorts of sycophants and yes-men. To answer honestly, I'm always looking for capable individuals not already tied to local politics. The established adventuring companies are all in someone's pocket. I need someone... independent.'",
+                    choices: [
+                        { text: "Express interest in what he's offering", nextNode: "express_interest_noble" },
+                        { text: "Ask what's in it for you", nextNode: "ask_noble_benefit" },
+                        { text: "Politely decline any involvement", nextNode: "firmly_decline_noble" }
+                    ]
+                },
+                "decline_noble": {
+                    text: "You politely decline his offer, saying you prefer to buy your own drinks. The noble seems surprised but quickly recovers. 'Independent spirit! I respect that.' He tips his hat to you and returns to his companions, occasionally glancing back at you with interest.",
+                    choices: [
+                        { text: "Head to the quest board", nextNode: "quest_board" },
+                        { text: "Find a table and observe the room", nextNode: "observe_room" },
+                        { text: "Approach a different group in the tavern", nextNode: "approach_other_group" }
+                    ]
+                },
+                
+                // Special paths for rogues at the bar
+                "rogue_play_along": {
+                    text: "You smile and thank the noble, accepting his generosity while keeping your wits about you. You engage in small talk, carefully watching as he not-so-subtly evaluates your possessions. When he 'accidentally' brushes against your coin pouch, you feel his fingers slip away empty - he's good, but not better than you.",
+                    choices: [
+                        { text: "Confront him privately about his attempted theft", nextNode: "confront_noble_privately" },
+                        { text: "Play along and subtly pick his pocket in return", nextNode: "pickpocket_noble" },
+                        { text: "Make an excuse and leave the conversation", nextNode: "excuse_from_noble" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Fine Ale", description: "A high-quality brew that restores 2 HP when consumed and gives +1 to Charisma checks for an hour" } },
+                        { type: "achievement", achievement: "Game Recognizes Game", description: "Spotted a fellow thief's attempt to rob you" }
+                    ]
+                },
+                "confront_noble": {
+                    text: "You lean in close and whisper, 'I know what you're trying to do.' The noble's practiced smile falters for only a moment before returning twice as bright. 'Well, well,' he says quietly. 'A professional, I see. My apologies for the misunderstanding. Perhaps we can discuss a... mutually beneficial arrangement instead?'",
+                    choices: [
+                        { text: "Hear out his proposition", nextNode: "noble_proposition" },
+                        { text: "Threaten to expose him to the tavern", nextNode: "threaten_noble" },
+                        { text: "Decline and walk away", nextNode: "walk_from_noble" }
+                    ]
+                },
+                "rogue_slip_away": {
+                    text: "With the practiced ease of someone used to disappearing when needed, you thank the noble for the drink but make an excuse about meeting a friend. Before he can respond, you've melted into the crowd and positioned yourself behind a pillar where you can watch him. You see him frown as he scans the room for you, then shrug and move on to another potential mark.",
+                    choices: [
+                        { text: "Follow him to see who else he targets", nextNode: "follow_noble" },
+                        { text: "Head to the quest board now", nextNode: "quest_board" },
+                        { text: "Find a table and observe other patrons", nextNode: "observe_room" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Smoke Bomb", description: "Disappeared like a true rogue" }
+                    ]
+                },
+
+                // Quest board continuations
+                "accept_merchant_quest": {
+                    text: "Merla nods approvingly. 'The guild can offer 100 gold pieces for solving this mystery and recovering what was lost, if possible.' She explains that the caravans were carrying textiles, spices, and a shipment of dwarven metalwork. 'They vanished near the Whispering Gorge. The strange thing is, we found the wagon tracks leading off the road toward the Mistwood, but they simply... stopped. As if the caravans took flight.'",
+                    choices: [
+                        { text: "Ask if I can inspect the site where the tracks vanished", nextNode: "inspect_disappearance_site" },
+                        { text: "Inquire about dangerous creatures in the area", nextNode: "ask_about_creatures" },
+                        { text: "Ask for an advance payment", nextNode: "request_advance" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Merchant Guild Commission", description: "Official document authorizing you to investigate missing caravans" } }
+                    ]
+                },
+                "negotiate_merchant": {
+                    text: "You mention that disappearing caravans sound like dangerous business and ask if the reward reflects the risk. Merla's eyes narrow slightly, but a small smile forms. 'I appreciate a professional who values their services,' she says. 'The guild authorized me to go up to 150 gold, but I was hoping to save them some coin. I can also throw in a merchant's license - tax-free trading in guild territories for a year. Worth more than gold in the right hands.'",
+                    choices: [
+                        { text: "Accept the improved offer", nextNode: "accept_improved_offer" },
+                        { text: "Push for even more", nextNode: "push_for_more" },
+                        { text: "Accept but ask for some equipment upfront", nextNode: "request_equipment" }
+                    ]
+                },
+                "ask_previous_attempts": {
+                    text: "'You're asking the right questions,' Merla says with approval. 'We sent our own security team after the first disappearance. They never returned. The city guard investigated the second one and found nothing conclusive. You'd be the third attempt.' She lowers her voice. 'I didn't put this on the notice, but one guard reported seeing strange lights in the sky before the tracks disappeared.'",
+                    choices: [
+                        { text: "Accept the job despite the risks", nextNode: "accept_despite_risks" },
+                        { text: "Ask for higher compensation due to the danger", nextNode: "ask_higher_compensation" },
+                        { text: "Decline the job as too dangerous", nextNode: "decline_merchant_job" }
+                    ]
+                },
+
+                // Wizard-specific path for the ruins quest
+                "wizard_discuss_theory": {
+                    text: "You and Thalanil fall into an animated discussion about magical theory. His eyes light up as you share perspectives, and he produces several parchments with sketches of the symbols found in the ruins. 'See here? This resembles evocation framework, but inverted, and here—this could be a variant of temporal manipulation I've never encountered. With your fresh insights, we might actually decipher this lost magical system!'",
+                    choices: [
+                        { text: "Suggest the symbols might relate to planar magic", nextNode: "wizard_planar_theory" },
+                        { text: "Propose combining your magical knowledge on the expedition", nextNode: "wizard_combine_knowledge" },
+                        { text: "Ask about any magical artifacts recovered so far", nextNode: "wizard_artifacts" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Ancient Symbol Transcriptions", description: "Thalanil's sketches of the mysterious magical symbols" } },
+                        { type: "statBoost", stat: "intelligence", amount: 1, duration: "temporary" }
+                    ]
+                },
+                "wizard_ask_traps": {
+                    text: "Thalanil's expression grows serious at your question. 'Your caution is warranted. We've lost two mages to what appeared to be dormant wards. The magic there is... reactive, somehow. It seems to respond differently to each arcanist who approaches it. Your unique magical signature might trigger different responses. I can provide scrolls of Detect Magic and dispelling, but beyond that...' He shrugs helplessly.",
+                    choices: [
+                        { text: "Offer to create a specialized ward-breaking spell", nextNode: "wizard_ward_breaking" },
+                        { text: "Suggest bringing protective amulets for the team", nextNode: "wizard_protective_gear" },
+                        { text: "Accept the scrolls and promise caution", nextNode: "wizard_accept_scrolls" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Scroll of Detect Magic", description: "Allows detection of magical auras and enchantments" } },
+                        { type: "addItem", item: { name: "Scroll of Dispel Magic", description: "Can neutralize magical effects and spells" } }
+                    ]
+                },
+                "wizard_spellbook": {
+                    text: "You offer to bring your spellbook to compare notes. Thalanil nearly drops his scrolls in excitement. 'That would be invaluable! Every wizard approaches the Art differently. Your spellbook might contain variations or techniques I've never considered.' He hesitates, then reaches into his robes, producing a small, ornate box. 'Here—a gesture of good faith. A focus stone from my personal collection. It may help you when we explore the ruins.'",
+                    choices: [
+                        { text: "Accept gratefully and arrange when to meet", nextNode: "wizard_arrange_meeting" },
+                        { text: "Ask more about the focus stone's properties", nextNode: "wizard_focus_stone" },
+                        { text: "Share a spell from your book as an immediate exchange", nextNode: "wizard_share_spell" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Arcane Focus Stone", description: "A polished blue crystal that enhances concentration for spellcasting" } }
+                    ]
+                },
+
+                // Dragonborn-specific path for the creature quest
+                "dragonborn_help": {
+                    text: "You assure Horic that you take no offense and would be happy to help. Your draconic heritage might indeed provide insight into this creature. Horic visibly relaxes. 'Bless you! My farm is just outside town, to the east. The missus will have supper waiting if you come now. You can see the tracks while there's still daylight, and we have a barn where you can rest if you need to stake out the creature overnight.'",
+                    choices: [
+                        { text: "Go with Horic to his farm now", nextNode: "go_to_farm" },
+                        { text: "Promise to come in the morning", nextNode: "promise_morning" },
+                        { text: "Ask to gather supplies first", nextNode: "gather_supplies" }
+                    ]
+                },
+                "dragonborn_negotiate": {
+                    text: "You let your eyes narrow slightly and smoke curl from your nostrils - just enough to make Horic fidget uncomfortably. 'Since you believe my... expertise... will be particularly valuable, I assume the compensation reflects that?' Horic swallows hard. 'O-of course! Double the posted reward! And my wife makes the best honeyed ham in the region - you'll eat like royalty while you're with us!'",
+                    choices: [
+                        { text: "Accept his improved offer", nextNode: "accept_improved_farm" },
+                        { text: "Thank him but say you need to consider other options", nextNode: "consider_options" },
+                        { text: "Ask what else he might offer", nextNode: "ask_more_compensation" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Draconic Intimidation", description: "Used your heritage to negotiate a better deal" }
+                    ]
+                },
+                "dragonborn_explain": {
+                    text: "With patient dignity, you explain that while you are of draconic ancestry, not all scaled creatures are related, just as not all furry animals are kin. Horic listens attentively, clearly embarrassed by his assumption. 'I meant no disrespect,' he says sincerely. 'We don't get many... travelers of your kind in these parts. I'd still value your help, especially since you seem knowledgeable about different creatures.'",
+                    choices: [
+                        { text: "Accept his apology and offer to help", nextNode: "accept_farm_help" },
+                        { text: "Give him some basic information about draconic creatures", nextNode: "dragonborn_information" },
+                        { text: "Suggest he post more details about the creature", nextNode: "suggest_better_posting" }
+                    ]
+                },
+
+                // Bard path continuations
+                "bard_duet": {
+                    text: "You agree to join her for a duet. As you ready your instrument, she begins a haunting melody about the fall of Myth Drannor. Your voices and instruments weave together perfectly, creating magic that has nothing to do with spells. The tavern falls silent, patrons entranced by the performance. When you finish, the applause is thunderous. 'Remarkable!' she exclaims. 'I'm Lyrawyn, by the way. We must speak of opportunities for someone with your talent.'",
+                    choices: [
+                        { text: "Ask what opportunities she has in mind", nextNode: "bard_opportunities" },
+                        { text: "Share stories of your musical training", nextNode: "bard_training" },
+                        { text: "Suggest collaborating on more performances", nextNode: "bard_collaborate" }
+                    ],
+                    effects: [
+                        { type: "gold", amount: 5 },
+                        { type: "statBoost", stat: "charisma", amount: 1, duration: "temporary" },
+                        { type: "achievement", achievement: "Perfect Harmony", description: "Performed a flawless musical duet" }
+                    ]
+                },
+                "bard_own_song": {
+                    text: "You offer to share one of your own compositions. Lyrawyn graciously yields the floor, and you begin your performance. Your song weaves tales of your adventures so far, embellishing them slightly for dramatic effect. The crowd is captivated, and several patrons buy you drinks afterward. Lyrawyn approaches with respect in her eyes. 'That was a tale well-spun,' she says. 'Have you considered performing at the Midsummer Festival? The Bardic College always looks for fresh talent.'",
+                    choices: [
+                        { text: "Express interest in the festival", nextNode: "bard_festival" },
+                        { text: "Ask about the Bardic College", nextNode: "bard_college" },
+                        { text: "Thank her but say you're focused on adventuring", nextNode: "bard_adventuring" }
+                    ],
+                    effects: [
+                        { type: "gold", amount: 3 },
+                        { type: "addItem", item: { name: "Tavern Ale", description: "A gift from an appreciative audience member" } }
+                    ]
+                },
+                "bard_exchange": {
+                    text: "You and Lyrawyn find a quiet corner to exchange tales of your travels. She's journeyed far more extensively than you, and her stories of the Moonshae Isles and the courts of Waterdeep are fascinating. As you talk, you realize she's subtly assessing you. 'You have the spark,' she says finally. 'The true bardic gift. I'm not just a wandering minstrel, you know. I seek talented individuals for... specialized performances.'",
+                    choices: [
+                        { text: "Ask what kind of 'specialized performances'", nextNode: "bard_specialized" },
+                        { text: "Inquire if this is related to the Bardic College", nextNode: "bard_inquire_college" },
+                        { text: "Politely decline any mysterious offers", nextNode: "bard_decline" }
+                    ]
+                },
+
+                // Elf-specific old man path
+                "elf_share_history": {
+                    text: "You share what you know of Alustriel and the Seven Silver Swords, tales passed down through elven history. The old man listens intently, nodding occasionally. 'You know your lore well,' he says with approval. 'I fought alongside elves during the Time of Troubles. Your people's courage never faltered, even when gods walked among us.' He leans forward. 'I see that same spirit in you. Perhaps you're the one I've been waiting for.'",
+                    choices: [
+                        { text: "Ask what he means", nextNode: "ask_waiting_purpose" },
+                        { text: "Ask about his experiences during that time", nextNode: "ask_time_troubles" },
+                        { text: "Politely suggest he might be mistaking you for someone else", nextNode: "suggest_mistaken" }
+                    ],
+                    effects: [
+                        { type: "statBoost", stat: "wisdom", amount: 1, duration: "temporary" }
+                    ]
+                },
+                "elf_question_knowledge": {
+                    text: "You ask how a human comes to know such specific details of elven history. The old man's eyes twinkle with amusement. 'Not all knowledge is forbidden to short-lived races,' he says, then pulls back his sleeve to reveal a tattoo of seven interlinked stars - a symbol only someone who served in the High Court of the Silver Marches would bear. 'I was Lord Silverhand's advisor for twenty years. I've probably spent more time with elves than with my own kind.'",
+                    choices: [
+                        { text: "Apologize for doubting him", nextNode: "apologize_doubt" },
+                        { text: "Ask why he left such a prestigious position", nextNode: "ask_why_left" },
+                        { text: "Ask what brings him to this tavern", nextNode: "ask_why_here" }
+                    ]
+                },
+                "elf_unfamiliar": {
+                    text: "You explain that you're not familiar with those specific tales, perhaps because you were raised away from traditional elven communities. The old man studies you thoughtfully. 'Interesting. An elf disconnected from their heritage, yet still bound by fate's threads.' He nods as if confirming something to himself. 'Sometimes those who stand apart see clearest. The Shadoweave is stirring again, and fresh eyes might be exactly what's needed.'",
+                    choices: [
+                        { text: "Ask about this 'Shadoweave'", nextNode: "ask_shadoweave" },
+                        { text: "Question why he's telling you this", nextNode: "question_motive" },
+                        { text: "Excuse yourself from the conversation", nextNode: "excuse_from_conversation" }
+                    ]
+                },
+
+                // Example of some deeper story paths
+                "examine_token": {
+                    text: "You carefully inspect the token. It's made of a dark metal that doesn't quite reflect light normally. The symbol shows a gloved hand with an eye in the palm. When you tilt it in the light, the eye seems to blink. With a shiver, you realize this is no ordinary coin - it's magically marked, likely to identify you to someone... or something.",
+                    choices: [
+                        { text: "Put it away and plan to meet at midnight", nextNode: "plan_midnight_meeting" },
+                        { text: "Ask the bartender about the symbol discretely", nextNode: "ask_symbol" },
+                        { text: "Attempt to detect the magic on the token", nextNode: "detect_token_magic" }
+                    ],
+                    classSpecific: {
+                        "wizard": {
+                            text: "With your arcane knowledge, you immediately recognize elements of divination and illusion magic in the token. The eye is not just a symbol - it's a scrying focus. Someone is watching you through it right now. You can feel the magical connection, thin but persistent, leading somewhere across the city."
+                        },
+                        "cleric": {
+                            text: "As a servant of the divine, you sense something unwholesome about the token. The eye symbol resonates with concealment and secrets - antithetical to most divine teachings. When you touch it while focusing on your deity, you feel a momentary chill, as if something dark took notice of your divine connection."
+                        }
+                    },
+                    raceSpecific: {
+                        "tiefling": {
+                            text: "Your infernal heritage tingles as you hold the token. There's something in the craftsmanship that feels distantly familiar, reminiscent of the dark compacts your ancestors once made. The eye seems to regard you with particular interest, as if recognizing a kindred spirit to whatever created it."
+                        }
+                    }
+                },
+
+                // Ending examples (these would connect to multiple paths)
+                "shadow_guild_ending": {
+                    text: "The Shadowhand Guild welcomes you into their ranks after your successful mission. Your reputation grows in the criminal underworld, and soon you're orchestrating heists that become legendary throughout the realm. Though wealth flows freely, you sometimes wonder about the path not taken - the hero you might have become instead of the shadow you've chosen to be.",
+                    choices: [
+                        { text: "Begin a new adventure", nextNode: "start" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Shadow Master", description: "Completed the Shadowhand Guild storyline" }
+                    ]
+                },
+                "hero_ending": {
+                    text: "Tales of your heroism spread throughout the land. Bards sing of your deeds in every tavern, children play at being you in village squares, and even the nobility treat you with respect. As you look out from the castle balcony, the king's medal heavy around your neck, you reflect on the humble beginnings that led to this moment. Every choice, every challenge - all leading here. But somewhere deep inside, you know that the road stretches ever onward, and greater adventures await.",
+                    choices: [
+                        { text: "Begin a new adventure", nextNode: "start" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Legendary Hero", description: "Completed the Hero's Journey storyline" }
+                    ]
+                },
+                "ancient_power_ending": {
+                    text: "The ancient artifact pulses with power in your hands. Knowledge floods your mind - secrets of creation, of the planes, of magic that predates the gods themselves. You understand now why so many sought this power, and why so many died for it. The question is no longer what you can do, but what you should do. With trembling hands, you make your choice, knowing the world will never be the same again.",
+                    choices: [
+                        { text: "Begin a new adventure", nextNode: "start" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Power Incarnate", description: "Completed the Ancient Artifact storyline" }
+                    ]
+                },
+                
+                "plan_midnight_meeting": {
+                    text: "You nod subtly to the hooded stranger, indicating you'll meet at the clock tower at midnight. As you wait for the appointed hour, you can't help but feel a mixture of excitement and apprehension. When the clock strikes twelve, you arrive at the base of the tower. The area is eerily quiet, with only the occasional hoot of an owl breaking the silence. Suddenly, a figure emerges from the shadows. 'You came. Good. Follow me, and speak to no one of what you're about to see.'",
+                    choices: [
+                        { text: "Follow the mysterious figure", nextNode: "secret_society" },
+                        { text: "Demand more information first", nextNode: "midnight_caution" },
+                        { text: "Attack the figure, suspecting a trap", nextNode: "midnight_ambush" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "wisdom", difficulty: 12, success: "You notice that the figure seems to be checking if you were followed. Whatever this is, it's serious.", failure: "You're too excited about the adventure ahead to notice much about your surroundings." }
+                    ]
+                },
+                
+                "secret_society": {
+                    text: "The hooded figure leads you through a maze of back alleys until you reach an unassuming building. Inside, a group of diverse individuals sit around a circular table, all wearing the same emblem you saw earlier. 'Welcome,' says an elderly woman at the head of the table. 'We are the Twilight Veil, protectors of this realm from threats beyond mortal understanding. We've been watching you, and we believe you have... potential.' She explains that an ancient evil is stirring beneath the city, and they need someone inconspicuous to help investigate. 'Will you join our cause?'",
+                    choices: [
+                        { text: "Accept their offer", nextNode: "join_twilight_veil" },
+                        { text: "Ask for more details before committing", nextNode: "twilight_questions" },
+                        { text: "Decline and leave", nextNode: "refuse_twilight" }
+                    ],
+                    classSpecific: {
+                        "wizard": { 
+                            text: "The elderly woman's eyes light up when she notices your spellbook. 'A practitioner of the arcane arts! Even better. Our order has collected magical knowledge for centuries that might interest you.' She reveals ancient tomes and scrolls that make your fingers tingle with anticipation."
+                        },
+                        "rogue": {
+                            text: "Several members eye you appreciatively. 'Your... talents... would be particularly useful for what we have in mind,' says a slender elf with daggers at his belt. 'Some locks need picking, some guards need... distraction.'"
+                        }
+                    }
+                },
+                
+                "midnight_caution": {
+                    text: "'Caution. A wise trait,' the figure says with a hint of approval. 'We are the Twilight Veil, guardians against forces that would bring chaos to this world. A darkness stirs beneath the city - ancient, malevolent. We need someone not yet known to our enemies.' The figure pulls back their hood, revealing an elf with silver hair and eyes that have seen centuries. 'I am Elindra. And yes, the pay is good, but the true reward is preserving the light of civilization.'",
+                    choices: [
+                        { text: "That sounds reasonable. Lead the way", nextNode: "secret_society" },
+                        { text: "This sounds too dangerous. Politely decline", nextNode: "refuse_twilight" },
+                        { text: "Demand payment up front", nextNode: "twilight_payment" }
+                    ]
+                },
+                
+                "midnight_ambush": {
+                    text: "Your instincts scream 'trap!' and you launch a preemptive strike. Unfortunately, your supposed ambush turns into embarrassment as the hooded figure effortlessly sidesteps your attack. 'Well, that was unexpected,' they say dryly. To your surprise, they seem more amused than angry. 'Caution is admirable, but perhaps work on your technique. Still interested in making some gold, assuming you don't attack your potential employers again?'",
+                    choices: [
+                        { text: "Apologize and hear them out", nextNode: "secret_society" },
+                        { text: "Leave in embarrassment", nextNode: "tavern_return" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: -1 },
+                        { type: "statCheck", stat: "dexterity", difficulty: 15, success: "Despite your failed ambush, your quick movements impress the hooded figure.", failure: "You not only miss, but trip and fall flat on your face. So much for making a good impression." }
+                    ]
+                },
+                
+                "ask_symbol": {
+                    text: "When the crowd at the bar thins, you casually show the bartender the symbol on the token. His eyes widen momentarily before his expression returns to neutral. He leans in, voice barely above a whisper. 'Where did you get that?' Before you can answer, he continues, 'Never mind. Listen carefully. The people who use that symbol... they deal with things most folk prefer to pretend don't exist. Dangerous things. But they pay well, and they've never steered me wrong. If someone gave you that, they think you're special. Take that as a compliment... or a warning.'",
+                    choices: [
+                        { text: "Ask more about these 'dangerous things'", nextNode: "bartender_lore" },
+                        { text: "Thank him and prepare for the midnight meeting", nextNode: "prepare_midnight" },
+                        { text: "Decide this is too suspicious and leave town", nextNode: "leave_town" }
+                    ],
+                    raceSpecific: {
+                        "dwarf": {
+                            text: "The bartender eyes your dwarven features with new interest. 'Your kind has history with them, you know. The Twilight Veil has long respected dwarven runesmiths. Something about your ancestral magic being particularly effective against... certain threats.'"
+                        }
+                    }
+                },
+                
+                "detect_token_magic": {
+                    text: "You focus your senses on the token, attempting to discern any magical properties. To your surprise, the token resonates with powerful abjuration magic - protective spells that seem to shield the bearer from scrying and detection. There's something else too - a faint connection, like a thread stretching out to somewhere in the city. With concentration, you realize it's a kind of magical beacon, marking you for recognition by others who know the enchantment.",
+                    choices: [
+                        { text: "Keep the token and go to the midnight meeting", nextNode: "prepare_midnight" },
+                        { text: "Destroy the token, sensing danger", nextNode: "destroy_token" },
+                        { text: "Try to study the token further", nextNode: "study_token" }
+                    ],
+                    classSpecific: {
+                        "wizard": {
+                            text: "As a trained wizard, you recognize this as sophisticated spellcraft indeed. The interweaving of protection and recognition enchantments speaks of a mage guild or secret society with considerable resources and knowledge. Your academic curiosity is deeply piqued."
+                        },
+                        "cleric": {
+                            text: "Your divine connection gives you additional insight - this token bears no unholy taint. If anything, it seems aligned with forces that maintain the balance between realms. Your deity doesn't seem opposed to this magic."
+                        }
+                    }
+                },
+                
+                "prepare_midnight": {
+                    text: "With a few hours remaining before midnight, you prepare yourself for whatever may come. You check your equipment, ensure your weapons are ready, and perhaps catch a brief rest to prepare your mind. As the appointed hour approaches, you make your way to the clock tower at the center of town. The streets are mostly empty, with just a few late-night revelers and night guards on patrol. The anticipation of what awaits makes your heartbeat quicken.",
+                    choices: [
+                        { text: "Go directly to the clock tower", nextNode: "plan_midnight_meeting" },
+                        { text: "Scout the area around the clock tower first", nextNode: "scout_tower" },
+                        { text: "Arrive deliberately late to see who's waiting", nextNode: "arrive_late" }
+                    ],
+                    effects: [
+                        { type: "restore", resource: "hp", amount: 2, message: "Your brief rest restores some vitality." }
+                    ]
+                },
+                
+                "twilight_payment": {
+                    text: "You cross your arms and state plainly that you'll need payment up front. Elindra sighs. 'Mercenary motives. Disappointing, but not surprising.' She produces a small pouch that jingles with the unmistakable sound of gold. 'Half now, half upon completion. Fair?' The amount inside is more than you'd make in two weeks of standard adventuring work.",
+                    choices: [
+                        { text: "Accept the terms and follow Elindra", nextNode: "secret_society" },
+                        { text: "Ask for the full amount now", nextNode: "twilight_negotiation" },
+                        { text: "Decline and leave", nextNode: "refuse_twilight" }
+                    ],
+                    effects: [
+                        { type: "gold", amount: 25 },
+                        { type: "relationship", faction: "Twilight Veil", amount: -1 }
+                    ]
+                },
+                
+                "twilight_negotiation": {
+                    text: "You push your luck, demanding full payment in advance. Elindra's silver eyes narrow. 'You mistake caution for stupidity,' she says coldly. 'We don't know if you'll honor your end of the bargain any more than you know if we'll honor ours. Half now is my final offer. Choose quickly - we don't have all night, and there are others who would gladly take your place.'",
+                    choices: [
+                        { text: "Accept the half payment", nextNode: "secret_society" },
+                        { text: "Walk away from the deal", nextNode: "refuse_twilight" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: -2 }
+                    ],
+                    classSpecific: {
+                        "bard": {
+                            text: "You try to charm Elindra with honeyed words and a quick smile, but she seems immune to your usual charisma. 'I've watched empires rise and fall, little songbird,' she says with the faintest hint of amusement. 'Your melodies are sweet, but they won't change my terms.'"
+                        }
+                    }
+                },
+                
+                "refuse_twilight": {
+                    text: "'A pity,' Elindra says, genuine disappointment in her voice. 'Perhaps our paths will cross again when the stakes are higher and the choice more clear.' She gestures toward the exit. As you leave, you can't shake the feeling that you've turned away from something significant. Still, there are plenty of other opportunities in a city this size.",
+                    choices: [
+                        { text: "Return to the tavern", nextNode: "tavern_return" },
+                        { text: "Find lodging for the night", nextNode: "find_inn" },
+                        { text: "Reconsider and go back", nextNode: "secret_society" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Road Not Taken", description: "Refused to join a secret society" }
+                    ]
+                },
+
+                "tavern_return": {
+                    text: "You return to The Drunken Dragon, which is now much quieter as the night has worn on. A few dedicated drinkers remain, along with some adventurers playing dice in the corner. The half-orc bartender raises an eyebrow as you enter. 'Back so soon?' he rumbles.",
+                    choices: [
+                        { text: "Order another drink", nextNode: "late_night_drink" },
+                        { text: "Ask about rooms for the night", nextNode: "tavern_lodging" },
+                        { text: "Join the dice game", nextNode: "join_dice_game" }
+                    ]
+                },
+                
+                "bartender_lore": {
+                    text: "The bartender glances nervously around before leaning closer. 'Look, I don't know much, and that's probably for the best. But I've heard whispers... They deal with things that crawl up from below. Ancient things that sleep beneath the city. Things from... other places.' He shudders visibly. 'But like I said, they pay well, and they've saved this city more than once, even if most folk never knew the danger.'",
+                    choices: [
+                        { text: "Ask if he's a member of their group", nextNode: "bartender_affiliation" },
+                        { text: "Thank him and prepare for the meeting", nextNode: "prepare_midnight" },
+                        { text: "Ask for more specific information about threats", nextNode: "bartender_threats" }
+                    ]
+                },
+                
+                "bartender_affiliation": {
+                    text: "The bartender laughs, but there's no humor in it. 'Me? No, friend. I'm just a simple businessman who keeps his ears open and his mouth shut. That's how you survive in this town. But...' he hesitates, then rolls up his sleeve to reveal a small scar in the shape of a warding symbol. 'Let's just say I'm grateful to them. A few years back, something got into my cellar. Something that wasn't... natural. They dealt with it, no questions asked, no payment required.'",
+                    choices: [
+                        { text: "What was in your cellar?", nextNode: "cellar_horror" },
+                        { text: "Thank him and get ready for the meeting", nextNode: "prepare_midnight" }
+                    ]
+                },
+                
+                "destroy_token": {
+                    text: "You decide the token represents unknown danger and must be destroyed. However, as you attempt to break, burn, or otherwise damage it, you discover it's surprisingly resilient. Physical force merely bounces off it, fire doesn't even warm it, and water beads on its surface. After several failed attempts, you realize this is no ordinary trinket. Whatever magic protects it is beyond common means of destruction.",
+                    choices: [
+                        { text: "Keep it after all and go to the meeting", nextNode: "prepare_midnight" },
+                        { text: "Try to sell it to a local magic shop", nextNode: "sell_token" },
+                        { text: "Throw it in the river and be done with it", nextNode: "discard_token" }
+                    ],
+                    classSpecific: {
+                        "wizard": {
+                            text: "Your arcane knowledge gives you pause. Items with this level of magical protection are rarely trivial. Destroying it might require specialized knowledge or materials - perhaps even a ritual. Or it could be that the token is meant to be indestructible by design, a sign of the creator's power and intent."
+                        }
+                    }
+                },
+                
+                "study_token": {
+                    text: "You find a quiet corner and spend time examining the token in detail. The craftsmanship is exquisite - definitely not local work. The symbol depicts what appears to be a veil or curtain with stars behind it, and the material seems to shift subtly under different lighting. As you study it, you notice that occasionally the token grows warmer, as if responding to something unseen. Most intriguing is that when you hold it up to moonlight streaming through the window, additional markings appear - a map of the city with the clock tower clearly marked.",
+                    choices: [
+                        { text: "Go to the midnight meeting", nextNode: "prepare_midnight" },
+                        { text: "Try to learn more about the symbol in a local library", nextNode: "research_symbol" },
+                        { text: "Show the token to another patron for insight", nextNode: "token_advice" }
+                    ],
+                    effects: [
+                        { type: "statBoost", stat: "intelligence", amount: 1, duration: "temporary", reason: "Mystical insight from studying the token" }
+                    ]
+                },
+                
+                "scout_tower": {
+                    text: "Exercising caution, you arrive early and circle the clock tower, staying in the shadows. You notice a few interesting details: two figures in dark cloaks posted at opposite street corners, subtly watching approaching paths; a symbol identical to the one on your token etched into the tower's stone base; and curious blue lanterns that seem to emit no smoke. Your reconnaissance complete, you decide how to approach.",
+                    choices: [
+                        { text: "Approach openly from the main street", nextNode: "plan_midnight_meeting" },
+                        { text: "Try to sneak past the lookouts", nextNode: "sneak_approach" },
+                        { text: "Wait and watch longer", nextNode: "extended_surveillance" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "perception", difficulty: 14, success: "You spot a third lookout on the rooftop you hadn't noticed before. They're thorough.", failure: "The area seems secure enough, though you can't shake the feeling you might have missed something." }
+                    ]
+                },
+                
+                "arrive_late": {
+                    text: "You deliberately arrive fifteen minutes after the appointed time. As you approach the clock tower, you notice the area seems deserted - no sign of your mysterious contact. A moment of disappointment washes over you, until a voice speaks directly behind you. 'Tardiness. An interesting choice for someone seeking to make a good impression.' You whirl around to find Elindra, the silver-haired elf, studying you with a mixture of amusement and irritation. 'Were you testing us, or merely being careless?'",
+                    choices: [
+                        { text: "Apologize sincerely", nextNode: "late_apology" },
+                        { text: "Explain you were being cautious", nextNode: "late_caution" },
+                        { text: "Ask how she managed to sneak up on you", nextNode: "late_surprise" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: -1 }
+                    ]
+                },
+
+                "join_twilight_veil": {
+                    text: "You accept the offer, sensing that this could be the beginning of a truly meaningful adventure. The elderly woman - who introduces herself as Magistra Vela - smiles with genuine warmth. 'Welcome to the Twilight Veil, young one. Our struggle is ancient, our burden heavy, but our purpose noble.' She hands you a token matching the one you already possess. 'You are now a Keeper of the Veil. Our first task for you is urgent - strange phenomena have been reported in the old Temple District. We believe something is attempting to breach the barriers between worlds.'",
+                    choices: [
+                        { text: "Ask about what's happening at the temple", nextNode: "temple_briefing" },
+                        { text: "Inquire about payment", nextNode: "twilight_payment_discussion" },
+                        { text: "Request equipment for the mission", nextNode: "twilight_equipment" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Veiled One", description: "Joined the mysterious Twilight Veil society" },
+                        { type: "relationship", faction: "Twilight Veil", amount: 3 },
+                        { type: "addItem", item: { name: "Keeper's Token", description: "A symbol of membership in the Twilight Veil, grants access to their safe houses" } }
+                    ]
+                },
+                
+                "temple_briefing": {
+                    text: "Magistra Vela unfurls an ancient map of the Temple District. 'Three days ago, temple attendants reported hearing voices from sealed chambers. Yesterday, two priests went missing. Our scryers detected an anomaly - a thinning of the veil between our world and... something else.' She points to the Temple of the Moon. 'We need you to investigate. Look for unusual symbols, listen for strange sounds. Do not attempt to confront whatever may be there alone. Gather information and return to us.'",
+                    choices: [
+                        { text: "Accept the mission and head to the Temple District", nextNode: "temple_district_arrival" },
+                        { text: "Ask about dangers you might face", nextNode: "temple_dangers" },
+                        { text: "Request a partner for the mission", nextNode: "request_partner" }
+                    ]
+                },
+                
+                "twilight_questions": {
+                    text: "You cautiously ask for more details before committing to their cause. Magistra Vela nods, respecting your prudence. 'We are guardians, first established when the old empire discovered what lurks beyond the stars. There are realms adjacent to ours, pressing against the fabric of reality. Some entities seek entry to our world - entities that would find humanity quite... digestible.' She gestures to ancient tomes lining the walls. 'Our work involves keeping these barriers strong and dealing with incursions when they occur. It is dangerous work, yes, but vital.'",
+                    choices: [
+                        { text: "That's enough information - I'll join", nextNode: "join_twilight_veil" },
+                        { text: "What happened to your previous recruit?", nextNode: "previous_recruit" },
+                        { text: "This sounds too dangerous after all", nextNode: "refuse_twilight" }
+                    ]
+                },
+                
+                "previous_recruit": {
+                    text: "A shadow crosses Magistra Vela's face. 'Perceptive question. Our last recruit, Darian, was... lost to us. Not for lack of training or support, but due to his own curiosity.' She sighs deeply. 'He became obsessed with a particular text we keep sealed. He broke into our restricted archives and attempted a summoning ritual. By the time we reached him...' She trails off, then fixes you with an intense gaze. 'This is why we have rules. This is why obedience can mean the difference between life and a fate worse than death.'",
+                    choices: [
+                        { text: "Join despite the risks", nextNode: "join_twilight_veil" },
+                        { text: "Respectfully decline", nextNode: "refuse_twilight" },
+                        { text: "Ask to see this dangerous text", nextNode: "request_forbidden_text" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: 1 }
+                    ]
+                },
+                
+                "request_forbidden_text": {
+                    text: "A hush falls over the room as all eyes turn to you. Magistra Vela's expression hardens. 'And this, friends, is why we test potential recruits so carefully.' She rises from her seat, suddenly seeming taller, more imposing. 'You have not yet earned our trust, yet you ask to see the very thing that corrupted a full member? Either you are foolish beyond measure or...' she narrows her eyes, '...you are not what you appear to be.' The atmosphere in the room turns decidedly hostile.",
+                    choices: [
+                        { text: "Apologize profusely for your mistake", nextNode: "apologize_text_request" },
+                        { text: "Try to leave immediately", nextNode: "flee_twilight" },
+                        { text: "Stand your ground and demand answers", nextNode: "confront_twilight" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: -5 }
+                    ]
+                },
+                
+                "apologize_text_request": {
+                    text: "You quickly backpedal, apologizing for your thoughtless question. 'Curiosity without wisdom is a dangerous trait,' Magistra Vela says sternly. 'But recognizing one's mistakes shows promise.' The tension in the room eases slightly. 'Let this be your first lesson with us: some knowledge comes at a terrible price. If you join us, you must trust that certain restrictions exist for good reason.'",
+                    choices: [
+                        { text: "I understand and wish to join", nextNode: "join_twilight_veil" },
+                        { text: "This organization seems too secretive for me", nextNode: "refuse_twilight" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: 1 }
+                    ]
+                },
+                
+                "flee_twilight": {
+                    text: "You sense danger and make a break for the door, but find your path blocked by two members who move with supernatural speed. 'No one leaves until we're certain,' says one, a tall woman with strange markings on her face. Magistra Vela approaches you slowly. 'We must be thorough. Open your mind to me.' You feel a strange pressure in your head as she attempts to probe your thoughts.",
+                    choices: [
+                        { text: "Resist the mental intrusion", nextNode: "resist_mind_reading" },
+                        { text: "Allow her to read your thoughts", nextNode: "allow_mind_reading" },
+                        { text: "Attack and try to escape", nextNode: "attack_twilight" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "wisdom", difficulty: 15, success: "You sense her probing at the edges of your consciousness, but maintain your mental barriers.", failure: "Your mind lies open like a book before her ancient power." }
+                    ]
+                },
+                
+                "find_inn": {
+                    text: "Deciding to get some rest, you search for lodging in the unfamiliar city. After asking around, you find 'The Slumbering Griffon,' a modest but clean inn not far from the main square. The innkeeper, a jovial halfling named Milo, offers you a room for 2 gold per night. 'Includes breakfast and a hot bath!' he proudly announces. As you settle in for the night, you notice a weathered journal left behind in your room drawer.",
+                    choices: [
+                        { text: "Read the journal", nextNode: "read_journal" },
+                        { text: "Return the journal to the innkeeper", nextNode: "return_journal" },
+                        { text: "Ignore it and get some sleep", nextNode: "sleep_inn" }
+                    ],
+                    effects: [
+                        { type: "gold", amount: -2 },
+                        { type: "restore", resource: "hp", amount: 5, message: "A good night's rest restores your vitality." }
+                    ]
+                },
+                
+                "read_journal": {
+                    text: "Curiosity gets the better of you, and you open the journal. Most pages contain mundane travel notes, but about halfway through, the writing changes - becoming more frantic, the script barely legible. The traveler writes of strange dreams, whispers from the walls, and a growing certainty of being watched. The final entry sends chills down your spine: 'They're coming through. Gods help us all. If you're reading this, look for the symbol of the parted veil. They're our only hope.' The same symbol that was on your token is drawn beneath these words.",
+                    choices: [
+                        { text: "Go to sleep, unsettled by what you've read", nextNode: "troubled_sleep" },
+                        { text: "Take the journal and seek out the Twilight Veil again", nextNode: "seek_twilight_again" },
+                        { text: "Check under your bed and in the closet", nextNode: "search_room" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Traveler's Journal", description: "A journal containing disturbing accounts of strange phenomena and references to the Twilight Veil" } }
+                    ]
+                },
+                
+                "late_apology": {
+                    text: "You offer a sincere apology for your tardiness. Elindra studies your face for a moment, then nods. 'Accepted. We value punctuality, but honesty more so.' Her severe expression softens slightly. 'Come, the others are waiting, and we've much to discuss.' As she leads you through the winding streets, she explains that the Twilight Veil has watched you for some time, noting your potential. 'Few have the specific qualities we seek. You, however, have shown promise.'",
+                    choices: [
+                        { text: "Ask what qualities they saw in you", nextNode: "twilight_recruitment" },
+                        { text: "Follow silently, taking in your surroundings", nextNode: "secret_society" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: 1 },
+                        { type: "statBoost", stat: "charisma", amount: 1, duration: "temporary", reason: "Your humility impresses Elindra" }
+                    ]
+                },
+                
+                "twilight_recruitment": {
+                    text: "'What did we see in you?' Elindra repeats, a mysterious smile playing on her lips. 'You survived the Dragon's Breath without passing out - a rare constitution. You asked questions when others simply obeyed. And most importantly,' she stops walking and faces you directly, 'you sensed something wasn't right in this town. The subtle wrongness that most ignore as just a feeling.' She taps your forehead gently. 'That intuition may save your life in our line of work. It's a rare gift, and one we value highly.'",
+                    choices: [
+                        { text: "Continue to the Twilight Veil meeting", nextNode: "secret_society" },
+                        { text: "Ask about the 'wrongness' she mentioned", nextNode: "discuss_wrongness" }
+                    ]
+                },
+                
+                "late_caution": {
+                    text: "'Caution,' Elindra repeats, weighing the word. 'A virtue, certainly. But caution applied incorrectly becomes mere paranoia or, worse, an excuse for inaction.' She circles you slowly. 'Still, I suppose it's better than recklessness. And these are dangerous times.' She stops in front of you. 'Very well. Your caution is noted and even appreciated. But now we must move quickly - others may be watching.'",
+                    choices: [
+                        { text: "Follow her to meet the Twilight Veil", nextNode: "secret_society" },
+                        { text: "Ask who might be watching", nextNode: "ask_about_watchers" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: 0 }
+                    ]
+                },
+                
+                "late_surprise": {
+                    text: "You turn Elindra's ambush back on her, asking how someone managed to approach you without detection. For the first time, she seems genuinely pleased. 'Finally, an interesting question.' She makes a subtle gesture with her hand, and you notice a slight shimmer around her form. 'Magical assistance helps, of course. But mostly training. Decades of it.' She studies you with new interest. 'Most people ask what we want or who we are. You ask how I did something. That speaks to a mind that values knowledge and skill. Promising.'",
+                    choices: [
+                        { text: "Ask her to teach you that technique", nextNode: "request_training" },
+                        { text: "Follow her to the meeting", nextNode: "secret_society" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: 2 },
+                        { type: "statBoost", stat: "perception", amount: 1, duration: "temporary", reason: "Elindra's appearance makes you more alert to your surroundings" }
+                    ],
+                    classSpecific: {
+                        "rogue": {
+                            text: "Her silver eyes widen slightly when she realizes you're a rogue. 'Ah, a kindred spirit of the shadows. Perhaps you already understand more than most the value of remaining unseen.' She demonstrates the technique again, more slowly, allowing you to observe the precise movements. 'With your natural talents, you could excel at this particular skill.'"
+                        }
+                    }
+                },
+                
+                "sneak_approach": {
+                    text: "Deciding to test the Twilight Veil's perimeter security, you stick to the shadows and attempt to approach the clock tower undetected. You move from alley to doorway, timing your movements with the patrol patterns of the lookouts. Just as you think you've succeeded, a hand clamps firmly on your shoulder. 'Impressive attempt,' whispers a voice in your ear. 'But we've been tracking you since you entered the district.' A hooded figure guides you toward the tower. 'Magistra Vela will be interested to know you tried to sneak in rather than approach openly.'",
+                    choices: [
+                        { text: "Explain you were testing their security", nextNode: "security_test_excuse" },
+                        { text: "Apologize for the subterfuge", nextNode: "sneaking_apology" },
+                        { text: "Break free and run", nextNode: "flee_twilight" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "dexterity", difficulty: 16, success: "Though they caught you, your movements were skilled enough to earn their respect.", failure: "You nearly tripped over yourself trying to be stealthy. Not your finest moment." }
+                    ]
+                },
+                
+                "extended_surveillance": {
+                    text: "You settle into a hidden vantage point, watching the clock tower and its surroundings for a full hour before the appointed time. Your patience reveals an interesting pattern - individuals arriving singly, each making a subtle gesture toward the blue lanterns before being permitted entry. You also notice that the lookouts change position every fifteen minutes in a coordinated rotation. As midnight approaches, you must decide how to proceed with this new information.",
+                    choices: [
+                        { text: "Approach openly, mimicking their secret gesture", nextNode: "mimic_gesture" },
+                        { text: "Approach openly without mimicking the gesture", nextNode: "plan_midnight_meeting" },
+                        { text: "Continue watching past midnight", nextNode: "miss_meeting" }
+                    ],
+                    effects: [
+                        { type: "statBoost", stat: "intelligence", amount: 1, duration: "temporary", reason: "Your careful observation has given you valuable insight" },
+                        { type: "addItem", item: { name: "Knowledge of Twilight Veil Protocols", description: "You've observed the basic security patterns of the mysterious organization" } }
+                    ]
+                },
+                
+                "mimic_gesture": {
+                    text: "Drawing on your observations, you approach the clock tower and casually make the same subtle hand sign you saw others perform. The guards exchange a quick glance of surprise, then one nods respectfully and steps aside. As you enter, you hear one whisper to the other, 'Did Elindra recruit another one without telling us?' Inside, you find yourself in an antechamber with a spiral staircase leading down. A soft blue light emanates from below, along with the murmur of voices.",
+                    choices: [
+                        { text: "Descend the staircase", nextNode: "secret_society" },
+                        { text: "Wait for someone to come up", nextNode: "wait_antechamber" },
+                        { text: "Listen to the conversation below", nextNode: "eavesdrop_twilight" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Master of Disguise", description: "Successfully infiltrated a secret society meeting" },
+                        { type: "relationship", faction: "Twilight Veil", amount: -1 }
+                    ]
+                },
+
+                // Many more story nodes would be added to create a complete adventure
+                // with multiple branching paths and endings
+            },
+
+            // Initialize the game
+            init: function() {
+                // Setup character creation options
+                this.populateRaceOptions();
+                this.populateClassOptions();
+                
+                // Set up event listeners
+                document.getElementById('start-adventure').addEventListener('click', this.startAdventure.bind(this));
+                document.getElementById('new-game-btn').addEventListener('click', this.newGame.bind(this));
+                document.getElementById('save-game-btn').addEventListener('click', this.saveGame.bind(this));
+                document.getElementById('load-game-btn').addEventListener('click', this.loadGame.bind(this));
+                
+                // Check for saved game
+                this.checkForSavedGame();
+            },
+
+            // Populate race options
+            populateRaceOptions: function() {
+                const raceContainer = document.getElementById('race-options');
+                raceContainer.innerHTML = '';
+
+                this.races.forEach(race => {
+                    const raceCard = document.createElement('div');
+                    raceCard.className = 'option-card';
+                    raceCard.dataset.race = race.id;
+                    
+                    raceCard.innerHTML = `
+                        <h4 class="option-title">${race.name}</h4>
+                        <p class="option-description">${race.description}</p>
+                        <p><small><strong>Bonuses:</strong> ${race.bonuses}</small></p>
+                    `;
+                    
+                    raceCard.addEventListener('click', () => {
+                        document.querySelectorAll('#race-options .option-card').forEach(card => {
+                            card.classList.remove('selected');
+                        });
+                        raceCard.classList.add('selected');
+                        this.state.character.race = race.id;
+                    });
+                    
+                    raceContainer.appendChild(raceCard);
+                });
+            },
+
+            // Populate class options
+            populateClassOptions: function() {
+                const classContainer = document.getElementById('class-options');
+                classContainer.innerHTML = '';
+
+                this.classes.forEach(characterClass => {
+                    const classCard = document.createElement('div');
+                    classCard.className = 'option-card';
+                    classCard.dataset.class = characterClass.id;
+                    
+                    classCard.innerHTML = `
+                        <h4 class="option-title">${characterClass.name}</h4>
+                        <p class="option-description">${characterClass.description}</p>
+                        <p><small><strong>Features:</strong> ${characterClass.features}</small></p>
+                    `;
+                    
+                    classCard.addEventListener('click', () => {
+                        document.querySelectorAll('#class-options .option-card').forEach(card => {
+                            card.classList.remove('selected');
+                        });
+                        classCard.classList.add('selected');
+                        this.state.character.class = characterClass.id;
+                    });
+                    
+                    classContainer.appendChild(classCard);
+                });
+            },
+
+            // Start the adventure
+            startAdventure: function() {
+                const characterName = document.getElementById('character-name').value.trim();
+                if (!characterName) {
+                    alert("Please enter a character name!");
+                    return;
+                }
+
+                if (!this.state.character.race) {
+                    alert("Please select a race!");
+                    return;
+                }
+
+                if (!this.state.character.class) {
+                    alert("Please select a class!");
+                    return;
+                }
+
+                // Set character name
+                this.state.character.name = characterName;
+
+                // Apply race and class bonuses to stats
+                this.applyRaceBonuses();
+                this.applyClassBonuses();
+
+                // Switch to story view
+                document.getElementById('character-creation').style.display = 'none';
+                document.getElementById('story-section').style.display = 'block';
+
+                // Update character sheet
+                this.updateCharacterSheet();
+
+                // Start the story
+                this.loadStoryNode("start");
+
+                // Show achievement for starting the game
+                this.showAchievement("Adventurer Born", "You've begun your journey in the world of D&D!");
+            },
+
+            // Apply race bonuses
+            applyRaceBonuses: function() {
+                const selectedRace = this.races.find(race => race.id === this.state.character.race);
+                
+                if (selectedRace && selectedRace.stats) {
+                    for (const [stat, bonus] of Object.entries(selectedRace.stats)) {
+                        this.state.character.stats[stat] += bonus;
+                    }
+                }
+            },
+
+            // Apply class bonuses
+            applyClassBonuses: function() {
+                const selectedClass = this.classes.find(characterClass => characterClass.id === this.state.character.class);
+                
+                if (selectedClass) {
+                    // Apply stat bonuses
+                    if (selectedClass.stats) {
+                        for (const [stat, bonus] of Object.entries(selectedClass.stats)) {
+                            this.state.character.stats[stat] += bonus;
+                        }
+                    }
+                    
+                    // Apply HP
+                    if (selectedClass.hp) {
+                        this.state.character.hp = selectedClass.hp;
+                        this.state.character.maxHp = selectedClass.hp;
+                    }
+                }
+            },
+
+            // Update character sheet display
+            updateCharacterSheet: function() {
+                const characterSheet = document.getElementById('character-sheet');
+                const selectedRace = this.races.find(race => race.id === this.state.character.race);
+                const selectedClass = this.classes.find(characterClass => characterClass.id === this.state.character.class);
+                
+                if (selectedRace && selectedClass) {
+                    let statusEffectsHTML = '';
+                    if (this.state.statusEffects.length > 0) {
+                        statusEffectsHTML = '<div class="character-attribute"><span class="attribute-label">Status:</span> ';
+                        this.state.statusEffects.forEach(effect => {
+                            const statusClass = effect.type === 'buff' ? 'status-good' : 'status-bad';
+                            statusEffectsHTML += `<span class="status-effect ${statusClass}">${effect.name}</span>`;
+                        });
+                        statusEffectsHTML += '</div>';
+                    }
+                    
+                    characterSheet.innerHTML = `
+                        <h3 class="character-sheet-title">${this.state.character.name}'s Character Sheet</h3>
+                        <div class="character-attribute"><span class="attribute-label">Race:</span> ${selectedRace.name}</div>
+                        <div class="character-attribute"><span class="attribute-label">Class:</span> ${selectedClass.name}</div>
+                        <div class="character-attribute"><span class="attribute-label">Level:</span> ${this.state.character.level}</div>
+                        <div class="character-attribute"><span class="attribute-label">HP:</span> ${this.state.character.hp}/${this.state.character.maxHp}</div>
+                        <div class="character-attribute"><span class="attribute-label">Gold:</span> ${this.state.character.gold}</div>
+                        <div class="character-attribute"><span class="attribute-label">STR:</span> ${this.state.character.stats.strength}</div>
+                        <div class="character-attribute"><span class="attribute-label">DEX:</span> ${this.state.character.stats.dexterity}</div>
+                        <div class="character-attribute"><span class="attribute-label">CON:</span> ${this.state.character.stats.constitution}</div>
+                        <div class="character-attribute"><span class="attribute-label">INT:</span> ${this.state.character.stats.intelligence}</div>
+                        <div class="character-attribute"><span class="attribute-label">WIS:</span> ${this.state.character.stats.wisdom}</div>
+                        <div class="character-attribute"><span class="attribute-label">CHA:</span> ${this.state.character.stats.charisma}</div>
+                        ${statusEffectsHTML}
+                    `;
+                }
+
+                // Update inventory
+                this.updateInventory();
+            },
+
+            // Update inventory display
+            updateInventory: function() {
+                const inventoryItems = document.getElementById('inventory-items');
+                inventoryItems.innerHTML = '';
+
+                if (this.state.character.inventory.length === 0) {
+                    inventoryItems.innerHTML = '<p>Your inventory is empty.</p>';
+                    return;
+                }
+
+                this.state.character.inventory.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'inventory-item';
+                    itemElement.innerHTML = `
+                        <div class="inventory-item-name">${item.name}</div>
+                        <div class="inventory-item-desc">${item.description}</div>
+                    `;
+                    inventoryItems.appendChild(itemElement);
+                });
+            },
+
+            // Load story node
+            loadStoryNode: function(nodeId) {
+                const node = this.storyNodes[nodeId];
+                if (!node) {
+                    console.error(`Story node ${nodeId} not found!`);
+                    return;
+                }
+
+                // Mark node as visited
+                if (!this.state.visitedNodes.includes(nodeId)) {
+                    this.state.visitedNodes.push(nodeId);
+                }
+
+                // Set current node
+                this.state.currentStoryNode = nodeId;
+
+                // Get text based on race/class if available
+                let displayText = node.text;
+                
+                // Check for class-specific content
+                if (node.classSpecific && node.classSpecific[this.state.character.class]) {
+                    displayText = node.classSpecific[this.state.character.class].text || displayText;
+                }
+                
+                // Check for race-specific content
+                if (node.raceSpecific && node.raceSpecific[this.state.character.race]) {
+                    displayText = node.raceSpecific[this.state.character.race].text || displayText;
+                }
+
+                // Display the story text
+                document.getElementById('story-text').innerHTML = displayText;
+
+                // Process any effects
+                if (node.effects) {
+                    this.processEffects(node.effects);
+                }
+
+                // Display choices based on race/class if available
+                const choicesContainer = document.getElementById('choices-container');
+                choicesContainer.innerHTML = '';
+
+                let choices = node.choices;
+                
+                // Override with class-specific choices if available
+                if (node.classSpecific && node.classSpecific[this.state.character.class] && node.classSpecific[this.state.character.class].choices) {
+                    choices = node.classSpecific[this.state.character.class].choices;
+                }
+                
+                // Override with race-specific choices if available
+                if (node.raceSpecific && node.raceSpecific[this.state.character.race] && node.raceSpecific[this.state.character.race].choices) {
+                    choices = node.raceSpecific[this.state.character.race].choices;
+                }
+
+                if (choices && choices.length > 0) {
+                    choices.forEach(choice => {
+                        // Check if choice has cost and if player can afford it
+                        let canChoose = true;
+                        let choiceText = choice.text;
+                        
+                        if (choice.cost && this.state.character.gold < choice.cost) {
+                            canChoose = false;
+                            choiceText += " (Cannot afford)";
+                        }
+
+                        // Check for stat requirements
+                        if (choice.requires) {
+                            for (const [stat, value] of Object.entries(choice.requires)) {
+                                if (this.state.character.stats[stat] < value) {
+                                    canChoose = false;
+                                    choiceText += ` (Requires ${stat.charAt(0).toUpperCase() + stat.slice(1)} ${value})`;
+                                    break;
+                                }
+                            }
+                        }
+
+                        const choiceButton = document.createElement('button');
+                        choiceButton.className = 'choice-button';
+                        choiceButton.textContent = choiceText;
+                        
+                        if (canChoose) {
+                            choiceButton.addEventListener('click', () => {
+                                this.chooseOption(choice.nextNode);
+                            });
+                        } else {
+                            choiceButton.disabled = true;
+                            choiceButton.style.opacity = 0.6;
+                            choiceButton.style.cursor = 'not-allowed';
+                        }
+                        
+                        choicesContainer.appendChild(choiceButton);
+                    });
+                } else {
+                    // If no choices, provide an end or restart button
+                    const endButton = document.createElement('button');
+                    endButton.className = 'choice-button';
+                    endButton.textContent = "Return to the beginning";
+                    endButton.addEventListener('click', () => {
+                        this.loadStoryNode("start");
+                    });
+                    choicesContainer.appendChild(endButton);
+                }
+
+                // Scroll to top of story
+                window.scrollTo(0, 0);
+            },
+
+            // Process a choice
+            chooseOption: function(nextNode) {
+                // Show loading animation
+                document.getElementById('loading').style.display = 'block';
+                
+                // Add short delay for effect
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    this.loadStoryNode(nextNode);
+                }, 800);
+            },
+
+            // Process node effects
+            processEffects: function(effects) {
+                effects.forEach(effect => {
+                    switch(effect.type) {
+                        case "gold":
+                            this.state.character.gold += effect.amount;
+                            if (this.state.character.gold < 0) this.state.character.gold = 0;
+                            break;
+                            
+                        case "hp":
+                            this.state.character.hp += effect.amount;
+                            if (this.state.character.hp > this.state.character.maxHp) {
+                                this.state.character.hp = this.state.character.maxHp;
+                            }
+                            if (this.state.character.hp < 0) this.state.character.hp = 0;
+                            break;
+                            
+                        case "addItem":
+                            this.state.character.inventory.push(effect.item);
+                            break;
+                            
+                        case "removeItem":
+                            this.state.character.inventory = this.state.character.inventory.filter(
+                                item => item.name !== effect.itemName
+                            );
+                            break;
+                            
+                        case "statBoost":
+                            this.state.character.stats[effect.stat] += effect.amount;
+                            
+                            if (effect.duration === "temporary") {
+                                // Add a status effect
+                                this.state.statusEffects.push({
+                                    name: `${effect.stat.charAt(0).toUpperCase() + effect.stat.slice(1)} Boost`,
+                                    type: 'buff',
+                                    duration: 3 // number of story nodes it lasts
+                                });
+                            }
+                            break;
+                            
+                        case "achievement":
+                            if (!this.state.achievements.includes(effect.achievement)) {
+                                this.state.achievements.push(effect.achievement);
+                                this.showAchievement(effect.achievement, effect.description);
+                            }
+                            break;
+                    }
+                });
+                
+                // Update character sheet
+                this.updateCharacterSheet();
+            },
+
+            // Show achievement notification
+            showAchievement: function(title, description) {
+                const achievementElement = document.getElementById('achievement');
+                achievementElement.innerHTML = `
+                    <div class="achievement-title">Achievement Unlocked: ${title}</div>
+                    <div>${description}</div>
+                `;
+                
+                // Show the achievement
+                achievementElement.classList.add('show');
+                
+                // Hide it after 5 seconds
+                setTimeout(() => {
+                    achievementElement.classList.remove('show');
+                }, 5000);
+            },
+
+            // Check for saved game
+            checkForSavedGame: function() {
+                const savedGame = localStorage.getItem('dndAdventureSave');
+                
+                if (savedGame) {
+                    document.getElementById('load-game-btn').disabled = false;
+                } else {
+                    document.getElementById('load-game-btn').disabled = true;
+                }
+            },
+
+            // Save game
+            saveGame: function() {
+                localStorage.setItem('dndAdventureSave', JSON.stringify(this.state));
+                this.showAchievement("Game Saved", "Your adventure has been saved!");
+                document.getElementById('load-game-btn').disabled = false;
+            },
+
+            // Load game
+            loadGame: function() {
+                const savedGame = localStorage.getItem('dndAdventureSave');
+                
+                if (savedGame) {
+                    try {
+                        this.state = JSON.parse(savedGame);
+                        
+                        // Switch to story view
+                        document.getElementById('character-creation').style.display = 'none';
+                        document.getElementById('story-section').style.display = 'block';
+                        
+                        // Update character sheet
+                        this.updateCharacterSheet();
+                        
+                        // Load current story node
+                        this.loadStoryNode(this.state.currentStoryNode);
+                        
+                        this.showAchievement("Game Loaded", "Your adventure continues!");
+                    } catch (e) {
+                        console.error("Error loading saved game:", e);
+                        alert("There was an error loading your saved game. It may be corrupted.");
+                    }
+                }
+            },
+
+            // Start a new game
+            newGame: function() {
+                if (confirm("Start a new game? This will erase your current progress.")) {
+                    // Reset state
+                    this.state = {
+                        character: {
+                            name: "",
+                            race: "",
+                            class: "",
+                            level: 1,
+                            hp: 10,
+                            maxHp: 10,
+                            gold: 10,
+                            inventory: [],
+                            traits: [],
+                            stats: {
+                                strength: 10,
+                                dexterity: 10,
+                                constitution: 10,
+                                intelligence: 10,
+                                wisdom: 10,
+                                charisma: 10
+                            }
+                        },
+                        currentStoryNode: "start",
+                        visitedNodes: [],
+                        achievements: [],
+                        statusEffects: []
+                    };
+                    
+                    // Switch to character creation
+                    document.getElementById('story-section').style.display = 'none';
+                    document.getElementById('character-creation').style.display = 'block';
+                    
+                    // Reset form fields
+                    document.getElementById('character-name').value = '';
+                    document.querySelectorAll('#race-options .option-card, #class-options .option-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                }
+            }
+        };
+
+        // Initialize the game when the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            game.init();
+        });
+    </script>
+</body>
+</html>
