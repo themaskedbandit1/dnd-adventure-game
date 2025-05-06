@@ -1600,6 +1600,268 @@
                         { type: "relationship", faction: "Twilight Veil", amount: -1 }
                     ]
                 },
+                
+                "wait_antechamber": {
+                    text: "You decide to wait in the antechamber, hoping to catch someone coming up who might provide more information. After several minutes of waiting, you hear footsteps on the staircase. A tall, lean elf with silver markings on his face emerges, stopping abruptly when he sees you. 'You're not... Who authorized your entry?' His hand moves subtly toward a dagger at his belt.",
+                    choices: [
+                        { text: "Bluff that Elindra sent you", nextNode: "bluff_elindra" },
+                        { text: "Admit you're not supposed to be here", nextNode: "admit_trespassing" },
+                        { text: "Attack preemptively", nextNode: "attack_twilight_guard" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "charisma", difficulty: 15, success: "You maintain a confident composure that makes the elf hesitate.", failure: "Your nervous demeanor immediately raises the elf's suspicions." }
+                    ]
+                },
+                
+                "eavesdrop_twilight": {
+                    text: "You carefully position yourself at the top of the stairs, straining to hear the conversation below. You make out fragments about 'the breach in the Temple District,' 'the missing clerics,' and 'signs of the Old Ones.' One authoritative voice - likely Magistra Vela - declares, 'We need someone disposable... someone who won't be missed if things go poorly.' This is followed by murmurs of agreement. Suddenly, the voices stop, and you hear, 'We have an eavesdropper.'",
+                    choices: [
+                        { text: "Run away immediately", nextNode: "flee_tower" },
+                        { text: "Pretend you just arrived", nextNode: "pretend_arrival" },
+                        { text: "Descend and confront them", nextNode: "confront_twilight_eavesdrop" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Overheard Information", description: "Knowledge about Twilight Veil's plans and 'the Old Ones'" } }
+                    ]
+                },
+                
+                "twilight_payment_discussion": {
+                    text: "You inquire about compensation for your services. Magistra Vela's expression cools slightly. 'Of course, practical matters must be addressed.' She produces a small pouch that jingles with the unmistakable sound of coins. 'Twenty gold now, thirty upon completion of your initial investigation. Additionally, access to certain... restricted tomes in our library, should you prove trustworthy. Does this arrangement satisfy your mercantile instincts?'",
+                    choices: [
+                        { text: "Accept the terms", nextNode: "temple_briefing" },
+                        { text: "Negotiate for more gold", nextNode: "negotiate_payment" },
+                        { text: "Ask about the restricted tomes instead", nextNode: "ask_restricted_tomes" }
+                    ],
+                    effects: [
+                        { type: "gold", amount: 20 },
+                        { type: "relationship", faction: "Twilight Veil", amount: -1 }
+                    ]
+                },
+                
+                "twilight_equipment": {
+                    text: "You explain that such a dangerous mission might require special equipment. Magistra Vela nods approvingly at your prudence and leads you to a side chamber filled with shelves of unusual items. 'We can provide some tools that may prove useful.' She presents you with a peculiar lantern that emits a pale blue light. 'This will reveal traces of extradimensional energies. And this,' she hands you a small silver bell, 'will alert us if you encounter immediate danger. Ring it only in dire need - we will hear it, no matter the distance.'",
+                    choices: [
+                        { text: "Thank her and accept the mission", nextNode: "temple_briefing" },
+                        { text: "Ask for weapons as well", nextNode: "request_weapons" },
+                        { text: "Ask how the bell works", nextNode: "ask_about_bell" }
+                    ],
+                    effects: [
+                        { type: "addItem", item: { name: "Aether Lantern", description: "A special lantern that reveals traces of extradimensional energy" } },
+                        { type: "addItem", item: { name: "Silver Bell of Calling", description: "A magical bell that alerts the Twilight Veil when rung in times of danger" } }
+                    ]
+                },
+                
+                "temple_district_arrival": {
+                    text: "The Temple District stands in stark contrast to the rest of the city. Ancient stone buildings reach skyward, their spires silhouetted against the darkening sky. The streets are nearly empty, with only a few acolytes hurrying to their evening duties. You find the Temple of the Moon - a circular structure of white marble with a domed roof featuring a large opening to the sky. As you approach, you notice something unusual: the temple doors stand slightly ajar, and no lights burn within.",
+                    choices: [
+                        { text: "Enter the temple cautiously", nextNode: "enter_temple" },
+                        { text: "Circle around to look for another entrance", nextNode: "circle_temple" },
+                        { text: "Watch from a distance first", nextNode: "observe_temple" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "perception", difficulty: 13, success: "You notice strange, faint blue symbols etched around the temple doorway that seem to be pulsing with an inner light.", failure: "The temple appears ordinary aside from its darkened state." }
+                    ]
+                },
+                
+                "temple_dangers": {
+                    text: "'Dangers?' Magistra Vela's eyes narrow. 'Yes, there are dangers. Whatever is attempting to break through... it is not of our reality. The entities beyond our world do not conform to our physical laws or comprehensible motivations. They can twist minds, alter perceptions.' She pauses. 'If you encounter unusual phenomena - shifting architecture, impossible geometry, whispers that seem to come from nowhere and everywhere - retreat immediately. Do not look directly at any entities you may encounter. Above all, if you feel a compulsion to do something unusual, resist it.'",
+                    choices: [
+                        { text: "Accept the mission despite the dangers", nextNode: "temple_district_arrival" },
+                        { text: "Ask how to defend against such threats", nextNode: "defense_against_entities" },
+                        { text: "Respectfully decline the mission", nextNode: "decline_mission" }
+                    ],
+                    effects: [
+                        { type: "statBoost", stat: "wisdom", amount: 1, duration: "temporary", reason: "Mental preparation for otherworldly encounters" }
+                    ]
+                },
+                
+                "request_partner": {
+                    text: "You suggest that having a partner might be safer for such a dangerous mission. Magistra Vela considers this for a moment before nodding. 'A reasonable request. I cannot spare any full members, but...' She gestures to a young woman who has been quietly taking notes in the corner. 'Lyra is an initiate who needs field experience. She knows the rituals to detect planar breaches and has some skill with defensive magic. She will accompany you, though you will be in charge.'",
+                    choices: [
+                        { text: "Thank Magistra Vela and introduce yourself to Lyra", nextNode: "meet_lyra" },
+                        { text: "Ask about Lyra's abilities in more detail", nextNode: "lyra_abilities" },
+                        { text: "Request a more experienced partner", nextNode: "request_experienced_partner" }
+                    ],
+                    effects: [
+                        { type: "companion", companion: "Lyra", description: "A young Twilight Veil initiate with knowledge of planar magic" }
+                    ]
+                },
+                
+                "meet_lyra": {
+                    text: "Lyra steps forward - a slender young woman with striking violet eyes and short silver hair. She bows slightly. 'I'm honored to assist you in this investigation,' she says, her voice carrying a slight accent you can't quite place. 'I've studied the theoretical aspects of planar breaches extensively, though this will be my first field assignment.' Despite her youth, there's a quiet confidence in her demeanor. 'I can perform detection rituals and cast protective wards, and I've been trained in basic combat, though I hope that won't be necessary.'",
+                    choices: [
+                        { text: "Head to the Temple District with Lyra", nextNode: "temple_district_arrival_lyra" },
+                        { text: "Ask about her background and training", nextNode: "lyra_background" },
+                        { text: "Establish a plan and chain of command", nextNode: "establish_mission_plan" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Lyra", amount: 1 }
+                    ]
+                },
+                
+                "enter_temple": {
+                    text: "You push the heavy doors open wider and step into the Temple of the Moon. The interior is circular, with a domed ceiling open to the night sky above. Marble pillars line the walls, and a large circular pool of still water occupies the center, designed to reflect the moon. But something is wrong - the water doesn't reflect the sky above, but instead shows swirling, impossible colors. The air feels thick and difficult to breathe, and you notice strange symbols carved into the floor that weren't visible from outside - they pulse with an eerie blue light.",
+                    choices: [
+                        { text: "Investigate the pool", nextNode: "investigate_pool" },
+                        { text: "Examine the strange symbols", nextNode: "examine_symbols" },
+                        { text: "Call out to see if anyone responds", nextNode: "call_out_temple" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "wisdom", difficulty: 14, success: "You feel a subtle pressure on your mind, but your mental fortitude allows you to resist it.", failure: "A strange dizzy sensation washes over you, and for a moment, you swear the pillars in the room rearranged themselves." }
+                    ]
+                },
+                
+                "investigate_pool": {
+                    text: "Approaching the pool cautiously, you peer into its depths. Instead of reflecting the night sky, the water shows a swirling cosmos unlike any starscape you've ever seen - with colors that shouldn't exist and formations that hurt your eyes to look at. As you watch, the impossible stars seem to form patterns, almost like writing. With a shock, you realize you can almost understand it... and something in the depths is moving, rising toward the surface. A voice in your mind whispers, 'Release us...'",
+                    choices: [
+                        { text: "Back away immediately", nextNode: "back_from_pool" },
+                        { text: "Reach out to touch the water", nextNode: "touch_pool" },
+                        { text: "Try to understand the message", nextNode: "comprehend_message" }
+                    ],
+                    effects: [
+                        { type: "sanity", amount: -1, message: "The impossible cosmos strains your grip on reality." },
+                        { type: "statCheck", stat: "intelligence", difficulty: 15, success: "You recognize elements of a summoning ritual in the arrangement of the pool and surrounding symbols.", failure: "The meaning of this setup eludes you completely." }
+                    ]
+                },
+                
+                "touch_pool": {
+                    text: "Despite every instinct warning against it, you find your hand moving toward the strangely colored water. The moment your fingers break the surface, a shock runs through your body. The liquid feels both ice-cold and burning hot simultaneously, and visions flood your mind - ancient cities of impossible geometry, vast beings that drift between stars, and knowledge that no mortal was meant to comprehend. Your consciousness expands painfully, and you hear a voice say, 'The gate will open, with or without your help, little one.'",
+                    choices: [
+                        { text: "Pull away with all your might", nextNode: "resist_pool" },
+                        { text: "Ask who or what is speaking", nextNode: "question_entity" },
+                        { text: "Allow yourself to sink deeper into the visions", nextNode: "embrace_visions" }
+                    ],
+                    effects: [
+                        { type: "sanity", amount: -3, message: "Contact with the otherworldly water fractures your perception of reality." },
+                        { type: "statBoost", stat: "intelligence", amount: 2, duration: "temporary", reason: "Forbidden knowledge floods your mind" },
+                        { type: "achievement", achievement: "Touched by the Beyond", description: "Made direct contact with an extradimensional entity" }
+                    ]
+                },
+                
+                "resist_pool": {
+                    text: "With tremendous effort, you wrench your hand free of the pool. As your fingers leave the surface, there's a sound like a glass breaking, though nothing visibly changes. You stumble backward, your mind reeling from what you experienced. The whispers fade, but you're left with fragments of impossible knowledge and a deep certainty that something dangerous is indeed trying to break through into this world. You need to report back to the Twilight Veil immediately - but you notice one of the symbols on the floor is now glowing much brighter than before.",
+                    choices: [
+                        { text: "Leave the temple immediately to report back", nextNode: "return_to_twilight" },
+                        { text: "Check the brightly glowing symbol first", nextNode: "check_bright_symbol" },
+                        { text: "Use the silver bell to call for help", nextNode: "ring_bell" }
+                    ],
+                    effects: [
+                        { type: "statBoost", stat: "wisdom", amount: 1, duration: "permanent", reason: "Your successful resistance to the entity's influence has strengthened your mental fortitude" },
+                        { type: "relationship", faction: "Twilight Veil", amount: 2 }
+                    ]
+                },
+                
+                "embrace_visions": {
+                    text: "You surrender to the pull, allowing your consciousness to sink deeper into the impossible visions. Your perception expands beyond the confines of your mortal form, beyond the temple, beyond the city. You see the vast tapestry of realities and the thin membranes separating them. You see THEM - entities of such alien nature that your mind struggles to assign them any form. One notices your awareness and reaches toward you. 'A WILLING VESSEL,' it says, though not in words. 'YOU SHALL BE OUR ANCHOR.'",
+                    choices: [
+                        { text: "Desperately try to pull back to reality", nextNode: "last_chance_resistance" },
+                        { text: "Accept the entity's offer", nextNode: "become_vessel" }
+                    ],
+                    effects: [
+                        { type: "sanity", amount: -5, message: "Your mind fragments under the weight of cosmic awareness." },
+                        { type: "achievement", achievement: "Cosmic Awareness", description: "Glimpsed the true nature of reality... and it broke you" }
+                    ]
+                },
+                
+                "become_vessel": {
+                    text: "You accept the entity's offer, feeling a surge of power and knowledge flood your being. Your body in the temple convulses as something else takes residence alongside your consciousness. You are still you, but also more - much more. Through new eyes, you see the pathetic limitations of your former perspective. The entity shares its plans - to bring its brethren through, to remake this world into something 'better.' And you will help. The Twilight Veil are misguided fools who would keep worlds separate, when true enlightenment comes from their merging.",
+                    choices: [
+                        { text: "Begin the ritual to open the gate fully", nextNode: "open_gate_ending" },
+                        { text: "Use your new power to destroy the Twilight Veil", nextNode: "destroy_veil_ending" }
+                    ],
+                    effects: [
+                        { type: "transformation", form: "Vessel of the Beyond", description: "You are no longer entirely human, hosting an entity from beyond reality" },
+                        { type: "statBoost", stat: "all", amount: 3, duration: "permanent", reason: "Otherworldly power fills your being" }
+                    ]
+                },
+                
+                "open_gate_ending": {
+                    text: "With your newfound knowledge, completing the ritual is trivial. The symbols around the temple flare with power as you speak words that no human tongue was designed to pronounce. The pool's surface breaks, not with ripples but with fractures in reality itself. The sky above darkens as something vast begins to push through. The Twilight Veil arrives too late - they can only watch in horror as you stand before the opening gate, arms outstretched in welcome. 'A new age begins,' you tell them, your voice overlaid with something ancient and terrible. The world as you knew it ends, replaced by something glorious and incomprehensible.",
+                    choices: [
+                        { text: "Begin a new adventure", nextNode: "start" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Herald of the New Age", description: "You helped bring about the end... and beginning" }
+                    ]
+                },
+                
+                "destroy_veil_ending": {
+                    text: "You leave the temple, your body moving with new grace and purpose. The entity within you is patient - the gate will open in time. First, the meddlers must be eliminated. You return to the Twilight Veil headquarters, presenting yourself as successful in your mission. But when the inner circle gathers to hear your report, you unleash powers no mortal should command. One by one, they fall - some to madness, others to physical transformations too horrific to describe. Only Magistra Vela, with centuries of magical experience, puts up meaningful resistance. 'We should have been more careful,' are her final words as reality warps around her. With the Veil's destruction, nothing stands between this world and what waits beyond.",
+                    choices: [
+                        { text: "Begin a new adventure", nextNode: "start" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "The Veil Torn Asunder", description: "Destroyed the ancient guardians of reality" }
+                    ]
+                },
+                
+                "return_to_twilight": {
+                    text: "You hurry back to the Twilight Veil headquarters, your mind still reeling from what you experienced. The guards recognize your urgency and immediately escort you to Magistra Vela. You describe everything - the pool, the symbols, the voice in your mind, the visions. As you speak, her expression grows increasingly grave. 'It is as we feared,' she says when you finish. 'An Elder Entity seeks entry to our realm. Had you touched the water longer, you might have become its vessel.' She calls for an emergency gathering of the full order. 'You have done well,' she tells you. 'Now we must act quickly to seal this breach.'",
+                    choices: [
+                        { text: "Volunteer to help with the sealing ritual", nextNode: "join_sealing_ritual" },
+                        { text: "Ask for your payment as the job is complete", nextNode: "request_payment" },
+                        { text: "Suggest evacuating the city instead", nextNode: "suggest_evacuation" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: 3 },
+                        { type: "gold", amount: 30, message: "Magistra Vela provides the promised payment for completing your investigation" }
+                    ]
+                },
+                
+                "join_sealing_ritual": {
+                    text: "You volunteer to join the sealing ritual despite the obvious dangers. Magistra Vela studies you for a moment before nodding. 'Your courage is commendable. Having touched the entity, you may actually strengthen our binding.' The Twilight Veil mobilizes quickly. That night, under the full moon, you return to the temple with twelve senior members. They form a circle around the pool, with you and Magistra Vela at the center. The ritual begins - chants in ancient languages, carefully drawn symbols, and a shared mental focus that feels like nothing you've experienced before. But as the ritual progresses, the entity fights back.",
+                    choices: [
+                        { text: "Pour your willpower into completing the ritual", nextNode: "hero_ending" },
+                        { text: "Falter at the critical moment", nextNode: "ritual_failure" }
+                    ],
+                    effects: [
+                        { type: "statCheck", stat: "willpower", difficulty: 18, success: "Your contribution proves crucial to the ritual's success.", failure: "The strain nearly breaks your mind, but the others compensate for your weakness." }
+                    ]
+                },
+                
+                "ritual_failure": {
+                    text: "At the critical moment, as the veil between worlds thins to its most vulnerable point, your resolve falters. The entity's whispers return, stronger than before, and a momentary doubt is all it takes. The carefully structured magic of the ritual warps and backlashes. Several Twilight Veil members collapse, blood streaming from their eyes. The pool erupts into a pillar of impossible colors, and reality tears open above it. Magistra Vela, in a final desperate act, pushes you aside and throws herself into the breach. There's a blinding flash, and when your vision clears, the portal is gone - along with Vela and three others. The surviving members look at you with a mixture of sorrow and accusation.",
+                    choices: [
+                        { text: "Apologize and offer to make amends", nextNode: "seek_redemption" },
+                        { text: "Flee the temple and the city", nextNode: "exile_ending" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: -5 },
+                        { type: "achievement", achievement: "Failed When It Mattered", description: "Your weakness allowed tragedy to occur" }
+                    ]
+                },
+                
+                "seek_redemption": {
+                    text: "Overwhelmed with guilt, you offer to do anything to make amends for your failure. The surviving members are initially cold, but one elder - a dwarven woman with a mechanical arm - speaks up. 'The entity is contained for now, but at great cost. Vela's sacrifice bought us time, nothing more.' She fixes you with a stern gaze. 'If you truly wish to atone, there is a way. The entity will seek another entry point, and we must track it. This task is dangerous, lonely, and may take years.' Despite the daunting prospect, you know this is your responsibility.",
+                    choices: [
+                        { text: "Accept the mission of redemption", nextNode: "redemption_ending" },
+                        { text: "Choose exile instead", nextNode: "exile_ending" }
+                    ],
+                    effects: [
+                        { type: "relationship", faction: "Twilight Veil", amount: 2 },
+                        { type: "achievement", achievement: "Path of Atonement", description: "Chose to redeem yourself after failure" }
+                    ]
+                },
+                
+                "redemption_ending": {
+                    text: "You dedicate yourself to the path of redemption. The Twilight Veil provides you with special training and equipment to track planar disturbances. For years, you travel from town to village to city, following whispers and signs that ordinary people would never notice. Your life becomes one of constant vigilance, silent service, and solitary purpose. There are nights of doubt and despair, but also moments of profound meaning. Ten years pass before you finally locate the entity's new attempt - a remote mountain temple where a dozen cultists work to create a new portal. This time, you do not falter. Your hard-won experience lets you disrupt their ritual and banish the entity back to its realm. When you finally return to the Twilight Veil, you are welcomed as a true member, your past failure forgiven.",
+                    choices: [
+                        { text: "Begin a new adventure", nextNode: "start" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "Redeemer", description: "Atoned for past failures through years of dedicated service" }
+                    ]
+                },
+                
+                "exile_ending": {
+                    text: "Unable to face the consequences of your actions, you flee the temple, the city, and the judgmental eyes of the Twilight Veil. For months, you travel aimlessly, haunted by nightmares of what you witnessed and what your weakness allowed to happen. The guilt never fully leaves you, but in time, you build a new life in a distant town where no one knows your past. You develop a reputation as someone knowledgeable about the supernatural, occasionally helping locals with minor hauntings or strange occurrences. It's a small atonement, but it brings some peace. Years later, a letter arrives bearing the symbol of the Twilight Veil: 'We have need of you again. Will you answer?'",
+                    choices: [
+                        { text: "Begin a new adventure", nextNode: "start" }
+                    ],
+                    effects: [
+                        { type: "achievement", achievement: "A New Beginning", description: "Left your past behind and forged a different path" }
+                    ]
+                },
 
                 // Many more story nodes would be added to create a complete adventure
                 // with multiple branching paths and endings
