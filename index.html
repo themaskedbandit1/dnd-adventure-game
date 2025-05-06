@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Chronicles of Aventuria - D&D Adventure</title>
+  <meta name="description" content="Embark on an epic fantasy adventure with unexpected twists and challenging choices in this D&D-inspired interactive story.">
+  
+  <!-- Tailwind CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+    
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --secondary: #6b7280;
+      --accent: #f59e0b;
+      --background: #0f172a;
+      --foreground: #f8fafc;
+      --card-bg: #1e293b;
+    }
+    
+    body {
+      font-family: 'EB Garamond', serif;
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+    }
+    
+    .font-medieval {
+      font-family: 'Cinzel Decorative', cursive;
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .btn {
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      border-radius: 0.25rem;
+      transition: all 0.2s ease-in-out;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: white;
+    }
+    
+    .btn-accent {
+      background-color: var(--accent);
+      color: black;
+      font-weight: 600;
+    }
+    
+    .selected {
+      border: 2px solid var(--accent);
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+    
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: var(--card-bg);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      z-index: 50;
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="flex flex-col items-center p-4">
+    <!-- Header -->
+    <header class="w-full max-w-6xl text-center mb-6 animate-fade-in">
+      <h1 class="text-4xl md:text-6xl font-medieval text-blue-500 drop-shadow-lg">
+        The Chronicles of Aventuria
+      </h1>
+      <p class="text-lg md:text-xl text-gray-300 mt-2">
+        A Choose Your Own Adventure in the Realms of Fantasy
+      </p>
+    </header>
+    
+    <!-- Game Container -->
+    <main class="w-full max-w-6xl">
+      <!-- Character Selection Screen -->
+      <section id="character-selection" class="flex flex-col items-center">
+        <h2 class="text-2xl font-medieval text-blue-400 mb-4">Choose Your Hero</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
+          <!-- Character Cards will be inserted here by JavaScript -->
+        </div>
+        
+        <button id="start-game-btn" class="btn btn-accent mt-8 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+          Begin Your Adventure
+        </button>
+      </section>
+      
+      <!-- Game Interface Screen (initially hidden) -->
+      <section id="game-interface" class="hidden">
+        <div class="flex flex-col lg:flex-row gap-6">
+          <!-- Character Panel -->
+          <div id="character-panel" class="card p-4 lg:w-1/3">
+            <!-- Character info will be inserted here -->
+          </div>
+          
+          <!-- Story Section -->
+          <div id="story-section" class="card p-6 lg:w-2/3">
+            <h2 id="scene-title" class="text-2xl font-medieval text-blue-400 mb-4"></h2>
+            
+            <div id="scene-content" class="prose prose-invert mb-6">
+              <!-- Scene content will be inserted here -->
+            </div>
+            
+            <div id="scene-choices" class="flex flex-col gap-3 mt-6">
+              <!-- Choices will be inserted here -->
+            </div>
+            
+            <button id="save-game-btn" class="btn btn-secondary mt-6">
+              Save Game
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="mt-8 text-center text-gray-400 text-sm">
+      <p>© 2025 The Chronicles of Aventuria</p>
+      <p class="mt-1">A D&D-themed Choose-Your-Own-Adventure Game</p>
+    </footer>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <h3 id="toast-title" class="font-bold"></h3>
+      <p id="toast-message"></p>
+    </div>
+  </div>
+
+  <script>
+    // Game Data
+    const gameData = {
+      // Character Templates
+      characters: [
+        {
+          id: "human-warrior",
+          name: "Thorin Ironheart",
+          race: "Human",
+          class: "Warrior",
+          portrait: "👨‍🦰",
+          health: 100,
+          maxHealth: 100,
+          mana: 20,
+          maxMana: 20,
+          strength: 16,
+          dexterity: 12,
+          constitution: 14,
+          intelligence: 8,
+          wisdom: 10,
+          charisma: 13,
+          abilities: [
+            { name: "Mighty Swing", description: "Deal extra damage with a powerful attack", cooldown: 0 },
+            { name: "Shield Bash", description: "Stun an enemy for one turn", cooldown: 0 }
+          ],
+          inventory: [
+            { id: "sword", name: "Iron Longsword", type: "Weapon", description: "A sturdy iron longsword", quantity: 1 },
+            { id: "shield", name: "Wooden Shield", type: "Shield", description: "A basic wooden shield", quantity: 1 },
+            { id: "potion", name: "Health Potion", type: "Consumable", description: "Restores 25 health points", quantity: 2 }
+          ],
+          statusEffects: [],
+          gold: 50,
+          experience: 0,
+          level: 1,
+          currentSceneId: "tavern-intro"
+        },
+        {
+          id: "elf-ranger",
+          name: "Elariel Swiftarrow",
+          race: "Elf",
+          class: "Ranger",
+          portrait: "🧝‍♀️",
+          health: 80,
+          maxHealth: 80,
+          mana: 40,
+          maxMana: 40,
+          strength: 12,
+          dexterity: 18,
+          constitution: 10,
+          intelligence: 14,
+          wisdom: 16,
+          charisma: 12,
+          abilities: [
+            { name: "Precise Shot", description: "An accurate shot that never misses", cooldown: 0 },
+            { name: "Nature's Whisper", description: "Communicate with animals for information", cooldown: 0 }
+          ],
+          inventory: [
+            { id: "bow", name: "Elven Bow", type: "Weapon", description: "A finely crafted elven bow", quantity: 1 },
+            { id: "arrows", name: "Arrows", type: "Ammunition", description: "Standard arrows", quantity: 20 },
+            { id: "herbs", name: "Medicinal Herbs", type: "Crafting", description: "Used to create potions", quantity: 3 }
+          ],
+          statusEffects: [],
+          gold: 40,
+          experience: 0,
+          level: 1,
+          currentSceneId: "tavern-intro"
+        },
+        {
+          id: "dwarf-cleric",
+          name: "Grimli Stonehammer",
+          race: "Dwarf",
+          class: "Cleric",
+          portrait: "🧔‍♂️",
+          health: 90,
+          maxHealth: 90,
+          mana: 60,
+          maxMana: 60,
+          strength: 14,
+          dexterity: 8,
+          constitution: 16,
+          intelligence: 10,
+          wisdom: 16,
+          charisma: 8,
+          abilities: [
+            { name: "Divine Heal", description: "Restore health to yourself or an ally", cooldown: 0 },
+            { name: "Smite", description: "Channel divine power to damage enemies", cooldown: 0 }
+          ],
+          inventory: [
+            { id: "hammer", name: "Warhammer", type: "Weapon", description: "A heavy warhammer", quantity: 1 },
+            { id: "holy-symbol", name: "Holy Symbol", type: "Item", description: "A holy symbol of your deity", quantity: 1 },
+            { id: "bandages", name: "Bandages", type: "Medical", description: "Used for first aid", quantity: 4 }
+          ],
+          statusEffects: [],
+          gold: 60,
+          experience: 0,
+          level: 1,
+          currentSceneId: "tavern-intro"
+        },
+        {
+          id: "halfling-rogue",
+          name: "Pip Quickfingers",
+          race: "Halfling",
+          class: "Rogue",
+          portrait: "🧒",
+          health: 70,
+          maxHealth: 70,
+          mana: 30,
+          maxMana: 30,
+          strength: 10,
+          dexterity: 19,
+          constitution: 12,
+          intelligence: 14,
+          wisdom: 12,
+          charisma: 15,
+          abilities: [
+            { name: "Backstab", description: "Deal massive damage from stealth", cooldown: 0 },
+            { name: "Pickpocket", description: "Steal items without being noticed", cooldown: 0 }
+          ],
+          inventory: [
+            { id: "daggers", name: "Twin Daggers", type: "Weapon", description: "A pair of sharp daggers", quantity: 1 },
+            { id: "lockpicks", name: "Lockpicking Kit", type: "Tool", description: "Tools for opening locks", quantity: 1 },
+            { id: "smoke-bomb", name: "Smoke Bomb", type: "Utility", description: "Creates a cloud of smoke for escape", quantity: 2 }
+          ],
+          statusEffects: [],
+          gold: 75,
+          experience: 0,
+          level: 1,
+          currentSceneId: "tavern-intro"
+        }
+      ],
+      
+      // Game Scenes
+      scenes: {
+        "tavern-intro": {
+          id: "tavern-intro",
+          title: "The Rusty Dagger Tavern",
+          backgroundImage: "tavern.jpg",
+          content: [
+            "You find yourself in The Rusty Dagger, a small tavern in the village of Willowdale. The air is thick with the smell of ale and roasted meat. A bard plays a quiet tune in the corner as patrons enjoy their drinks.",
+            "As you sip your drink, you notice a hooded figure in the corner watching you intently. They signal for you to approach."
+          ],
+          choices: [
+            {
+              id: "approach-friendly",
+              text: "Approach with a friendly greeting",
+              description: "You decide to be friendly and open to whatever opportunity this might bring.",
+              nextSceneId: "tavern-friendly",
+              consequences: {}
+            },
+            {
+              id: "approach-cautious",
+              text: "Approach cautiously with hand near your weapon",
+              description: "Strangers in hoods rarely bring good news. Better safe than sorry.",
+              nextSceneId: "tavern-cautious",
+              consequences: {}
+            },
+            {
+              id: "ignore-figure",
+              text: "Ignore the stranger and continue drinking",
+              description: "You're not in the mood for mysterious strangers tonight.",
+              nextSceneId: "tavern-ignore",
+              consequences: {}
+            }
+          ],
+          checkpoint: true
+        },
+        "tavern-friendly": {
+          id: "tavern-friendly",
+          title: "A Mysterious Proposition",
+          backgroundImage: "tavern-corner.jpg",
+          content: [
+            "You approach with a warm smile and friendly demeanor. \"Good evening, friend. You seem interested in my company.\"",
+            "The hooded figure nods approvingly. \"A courteous adventurer. How refreshing.\" They push back their hood revealing an older woman with sharp eyes and silver hair.",
+            "\"My name is Elinor. I represent the Willowdale Merchant's Guild, and we have a... situation that requires someone with your particular talents.\""
+          ],
+          choices: [
+            {
+              id: "accept-quest",
+              text: "\"I'm listening. Tell me more about this situation.\"",
+              description: "You're intrigued by the mysterious offer.",
+              nextSceneId: "hooded-figure",
+              consequences: {
+                goldChange: 10,
+                addItems: [
+                  { id: "guild-token", name: "Merchant's Guild Token", type: "Item", description: "A token proving your association with the Merchant's Guild", quantity: 1 }
+                ]
+              }
+            },
+            {
+              id: "request-payment",
+              text: "\"I'm interested, but my services aren't free.\"",
+              description: "You make it clear you expect compensation.",
+              nextSceneId: "hooded-figure",
+              consequences: {
+                goldChange: 25
+              }
+            }
+          ]
+        },
+        "tavern-cautious": {
+          id: "tavern-cautious",
+          title: "Suspicious Encounter",
+          backgroundImage: "tavern-corner.jpg",
+          content: [
+            "You approach the table with caution, your hand resting near your weapon. \"What do you want?\" you ask bluntly.",
+            "The hooded figure seems amused by your caution. \"Wise to be careful in these times.\" They reveal themselves - an older woman with calculating eyes and silver hair.",
+            "\"My name is Elinor. I work for the Willowdale Merchant's Guild. We need someone with combat experience for a delicate matter.\""
+          ],
+          choices: [
+            {
+              id: "accept-quest",
+              text: "\"What's the job and how much does it pay?\"",
+              description: "You're direct about your interest in the work.",
+              nextSceneId: "hooded-figure",
+              consequences: {
+                statChanges: {
+                  strength: 1
+                }
+              }
+            },
+            {
+              id: "threaten-more-info",
+              text: "\"Start talking or start walking. I don't have time for games.\"",
+              description: "You're not in the mood for mysterious half-truths.",
+              nextSceneId: "hooded-figure",
+              consequences: {
+                goldChange: 5
+              }
+            }
+          ]
+        },
+        "tavern-ignore": {
+          id: "tavern-ignore",
+          title: "Persistent Stranger",
+          backgroundImage: "tavern.jpg",
+          content: [
+            "You pretend not to notice the hooded figure and continue drinking your ale. After a few minutes, you notice they've moved and are now sitting across from you at your table.",
+            "\"Ignoring me won't make me disappear,\" says a female voice. The figure pulls back their hood, revealing an older woman with silver hair and sharp, intelligent eyes.",
+            "\"My name is Elinor, and the Merchant's Guild has a problem only someone like you can solve.\""
+          ],
+          choices: [
+            {
+              id: "reluctantly-listen",
+              text: "\"Fine, I'm listening, but this better be worth interrupting my drink.\"",
+              description: "You'll hear them out, but you're not happy about it.",
+              nextSceneId: "hooded-figure",
+              consequences: {}
+            },
+            {
+              id: "leave-tavern",
+              text: "\"I'm not interested. Find someone else.\" (Leave the tavern)",
+              description: "You really don't want to get involved.",
+              nextSceneId: "leave-town",
+              consequences: {
+                healthChange: -5
+              }
+            }
+          ]
+        },
+        "hooded-figure": {
+          id: "hooded-figure",
+          title: "The Guild's Problem",
+          backgroundImage: "tavern-corner.jpg",
+          content: [
+            "Elinor leans in closer, keeping her voice low. \"A shipment of valuable goods was stolen three days ago on the north road. The guards were... neutralized.\"",
+            "She slides a small pouch across the table. \"Inside is an amulet found at the scene. It bears the mark of the Crimson Fang bandits.\"",
+            "\"We need someone to track them to their hideout, recover our goods, and teach them that the Guild is not to be trifled with. Are you interested?\""
+          ],
+          choices: [
+            {
+              id: "accept-bounty",
+              text: "\"I'll take care of your bandit problem.\"",
+              description: "This sounds like good honest mercenary work.",
+              nextSceneId: "bounty-quest",
+              consequences: {
+                addItems: [
+                  { id: "bandit-amulet", name: "Crimson Fang Amulet", type: "Quest Item", description: "An amulet bearing the symbol of the Crimson Fang bandits", quantity: 1 }
+                ]
+              }
+            },
+            {
+              id: "negotiate-payment",
+              text: "\"What's the payment for such dangerous work?\"",
+              description: "You want to ensure the reward matches the risk.",
+              nextSceneId: "negotiate-reward",
+              consequences: {}
+            },
+            {
+              id: "suggest-guards",
+              text: "\"Shouldn't the town guard handle this?\"",
+              description: "This seems like a job for law enforcement, not adventurers.",
+              nextSceneId: "explain-discretion",
+              consequences: {}
+            }
+          ]
+        },
+        "bounty-quest": {
+          id: "bounty-quest",
+          title: "On the Bandit Trail",
+          backgroundImage: "forest-path.jpg",
+          content: [
+            "With the Crimson Fang amulet in hand, you set out the next morning. Locals point you toward the northern forests where the bandits are rumored to operate.",
+            "After several hours of tracking, you find signs of frequent passage - broken branches, discarded food, and a clear trail leading deeper into the woods.",
+            "As the day progresses, you come across a fork in the path. One way shows signs of heavy use, while the other is less traveled but has fresher tracks."
+          ],
+          choices: [
+            {
+              id: "take-main-path",
+              text: "Follow the well-used path",
+              description: "The main path likely leads to their primary encampment.",
+              nextSceneId: "bandit-camp",
+              consequences: {}
+            },
+            {
+              id: "take-secondary-path",
+              text: "Follow the fresher tracks",
+              description: "The fresher tracks might lead to a scouting party or patrol.",
+              nextSceneId: "bandit-patrol",
+              consequences: {
+                statChanges: {
+                  dexterity: 1
+                }
+              }
+            },
+            {
+              id: "find-high-ground",
+              text: "Find high ground to survey the area",
+              description: "Getting a better view might help you make a more informed decision.",
+              nextSceneId: "forest-overlook",
+              consequences: {
+                statChanges: {
+                  wisdom: 1
+                }
+              }
+            }
+          ],
+          checkpoint: true
+        },
+        "bandit-camp": {
+          id: "bandit-camp",
+          title: "The Bandit Stronghold",
+          backgroundImage: "bandit-camp.jpg",
+          content: [
+            "The well-used path leads you to a clearing where the Crimson Fang bandits have established a proper encampment. Tents and crude structures house what appears to be at least twenty bandits.",
+            "In the center, you spot a larger tent with guards posted outside - likely the leader's quarters. The stolen goods are probably kept nearby.",
+            "You hide at the edge of the clearing, considering your options. A frontal assault would be suicide, but perhaps there are other approaches."
+          ],
+          choices: [
+            {
+              id: "wait-for-nightfall",
+              text: "Wait for nightfall to infiltrate the camp",
+              description: "Darkness will provide cover for a stealthy approach.",
+              nextSceneId: "night-infiltration",
+              consequences: {}
+            },
+            {
+              id: "create-distraction",
+              text: "Create a distraction to draw away some bandits",
+              description: "Reducing their numbers could make this more manageable.",
+              nextSceneId: "camp-distraction",
+              consequences: {}
+            },
+            {
+              id: "find-another-entrance",
+              text: "Look for another way into the camp",
+              description: "There might be a less guarded approach.",
+              nextSceneId: "camp-alternative-entrance",
+              consequences: {}
+            }
+          ]
+        },
+        "night-infiltration": {
+          id: "night-infiltration",
+          title: "Under Cover of Darkness",
+          backgroundImage: "night-camp.jpg",
+          content: [
+            "You wait patiently until nightfall, watching the camp's routine. After dinner, many bandits retire to their tents while a skeleton crew maintains watch.",
+            "Moving silently, you slip between shadows, avoiding the patrol routes you've memorized. A dog nearly gives you away, but you distract it with some jerky from your rations.",
+            "Eventually, you reach the main tent. Two guards stand watch outside, both looking bored and occasionally sipping from flasks."
+          ],
+          choices: [
+            {
+              id: "knockout-guards",
+              text: "Silently take out the guards",
+              description: "You'll need to be quick and quiet.",
+              nextSceneId: "leader-confrontation",
+              consequences: {
+                healthChange: -10,
+                addItems: [
+                  { id: "bandit-key", name: "Storage Key", type: "Key", description: "A key that likely opens the storage area", quantity: 1 }
+                ]
+              }
+            },
+            {
+              id: "find-goods-first",
+              text: "Bypass the main tent and find the goods first",
+              description: "The merchandise is your primary objective.",
+              nextSceneId: "storage-tent",
+              consequences: {}
+            },
+            {
+              id: "create-night-distraction",
+              text: "Create a distraction to draw the guards away",
+              description: "A diversion might clear your path.",
+              nextSceneId: "night-distraction",
+              consequences: {
+                statChanges: {
+                  intelligence: 1
+                }
+              }
+            }
+          ]
+        },
+        // Additional scenes would continue here...
+      }
+    };
+    
+    // Game State Management
+    const game = {
+      character: null,
+      progress: {
+        visitedScenes: [],
+        lastUpdated: ''
+      },
+      
+      // Initialize the game
+      init: function() {
+        this.renderCharacterSelection();
+        this.attachEventListeners();
+        this.loadSavedGame();
+      },
+      
+      // Get a deep copy of a character template
+      createCharacterFromTemplate: function(templateId) {
+        const template = gameData.characters.find(char => char.id === templateId);
+        if (!template) return null;
+        
+        // Create a deep copy
+        return JSON.parse(JSON.stringify(template));
+      },
+      
+      // Render the character selection screen
+      renderCharacterSelection: function() {
+        const container = document.querySelector('.grid');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        gameData.characters.forEach(char => {
+          const isSelected = this.character && this.character.id === char.id;
+          
+          const charCard = document.createElement('div');
+          charCard.className = `card p-4 cursor-pointer transition-all hover:shadow-lg ${isSelected ? 'selected' : ''}`;
+          charCard.dataset.characterId = char.id;
+          
+          // Get primary ability descriptions
+          const abilityDescriptions = char.abilities.map(ability => 
+            `<div class="text-xs mt-1"><span class="text-blue-300">${ability.name}:</span> ${ability.description}</div>`
+          ).join('');
+          
+          charCard.innerHTML = `
+            <div class="text-center mb-2">
+              <span class="text-5xl">${char.portrait}</span>
+            </div>
+            <h3 class="text-xl font-medieval text-center text-blue-400">${char.name}</h3>
+            <div class="text-sm text-center text-gray-300 mb-2">${char.race} ${char.class}</div>
+            
+            <div class="grid grid-cols-2 gap-1 mb-2 text-sm">
+              <div>Health: ${char.health}/${char.maxHealth}</div>
+              <div>Mana: ${char.mana}/${char.maxMana}</div>
+              <div>STR: ${char.strength}</div>
+              <div>DEX: ${char.dexterity}</div>
+              <div>CON: ${char.constitution}</div>
+              <div>INT: ${char.intelligence}</div>
+              <div>WIS: ${char.wisdom}</div>
+              <div>CHA: ${char.charisma}</div>
+            </div>
+            
+            <div class="mb-2 text-sm">
+              <div class="font-medieval text-blue-400 border-b border-blue-400 pb-1 mb-1">Abilities</div>
+              ${abilityDescriptions}
+            </div>
+            
+            <div class="text-sm">
+              <div class="font-medieval text-blue-400 border-b border-blue-400 pb-1 mb-1">Starting Items</div>
+              <div class="text-xs space-y-1">
+                ${char.inventory.map(item => `<div>${item.name} ${item.quantity > 1 ? `(x${item.quantity})` : ''}</div>`).join('')}
+              </div>
+            </div>
+          `;
+          
+          container.appendChild(charCard);
+        });
+        
+        // Enable start button if character is selected
+        const startButton = document.getElementById('start-game-btn');
+        if (startButton) {
+          startButton.disabled = !this.character;
+        }
+      },
+      
+      // Render the character panel in game interface
+      renderCharacterPanel: function() {
+        if (!this.character) return;
+        
+        const panel = document.getElementById('character-panel');
+        if (!panel) return;
+        
+        panel.innerHTML = `
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-4xl">${this.character.portrait}</span>
+            <div>
+              <h3 class="text-xl font-medieval text-blue-400">${this.character.name}</h3>
+              <div class="text-sm text-gray-300">Level ${this.character.level} ${this.character.race} ${this.character.class}</div>
+            </div>
+          </div>
+          
+          <!-- Experience -->
+          <div class="mb-3">
+            <div class="flex justify-between text-sm mb-1">
+              <span>Experience</span>
+              <span>${this.character.experience} / ${this.character.level * 100}</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-1.5">
+              <div class="bg-yellow-500 h-1.5 rounded-full" style="width: ${Math.min(100, (this.character.experience / (this.character.level * 100)) * 100)}%"></div>
+            </div>
+          </div>
+          
+          <!-- Health Bar -->
+          <div class="mb-2">
+            <div class="flex justify-between text-sm mb-1">
+              <span>Health</span>
+              <span>${this.character.health}/${this.character.maxHealth}</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2.5">
+              <div class="bg-red-600 h-2.5 rounded-full" style="width: ${(this.character.health / this.character.maxHealth) * 100}%"></div>
+            </div>
+          </div>
+          
+          <!-- Mana Bar -->
+          <div class="mb-4">
+            <div class="flex justify-between text-sm mb-1">
+              <span>Mana</span>
+              <span>${this.character.mana}/${this.character.maxMana}</span>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2.5">
+              <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${(this.character.mana / this.character.maxMana) * 100}%"></div>
+            </div>
+          </div>
+          
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-2 mb-4 text-sm">
+            <div>STR: ${this.character.strength}</div>
+            <div>DEX: ${this.character.dexterity}</div>
+            <div>CON: ${this.character.constitution}</div>
+            <div>INT: ${this.character.intelligence}</div>
+            <div>WIS: ${this.character.wisdom}</div>
+            <div>CHA: ${this.character.charisma}</div>
+          </div>
+          
+          <!-- Abilities -->
+          <div class="mb-4">
+            <h4 class="font-medieval text-blue-400 border-b border-blue-400 pb-1 mb-2">Abilities</h4>
+            <div class="text-sm text-gray-300">
+              ${this.character.abilities.length > 0 
+                ? this.character.abilities.map(ability => `
+                    <div class="flex justify-between mb-1">
+                      <span>${ability.name}</span>
+                      <span class="text-xs bg-blue-900 bg-opacity-50 px-2 rounded" title="${ability.description}">${ability.cooldown > 0 ? `Cooldown: ${ability.cooldown}` : 'Ready'}</span>
+                    </div>
+                  `).join('') 
+                : '<div class="italic">No abilities</div>'
+              }
+            </div>
+          </div>
+          
+          <!-- Status Effects -->
+          <div class="mb-4">
+            <h4 class="font-medieval text-blue-400 border-b border-blue-400 pb-1 mb-2">Status Effects</h4>
+            <div class="text-sm text-gray-300">
+              ${this.character.statusEffects.length > 0 
+                ? this.character.statusEffects.map(effect => `
+                    <div class="flex justify-between mb-1">
+                      <span>${effect.name}</span>
+                      <span class="text-xs bg-blue-900 bg-opacity-50 px-2 rounded">${effect.duration} turns</span>
+                    </div>
+                  `).join('') 
+                : '<div class="italic">No active effects</div>'
+              }
+            </div>
+          </div>
+          
+          <!-- Inventory -->
+          <div>
+            <h4 class="font-medieval text-blue-400 border-b border-blue-400 pb-1 mb-2">Inventory</h4>
+            <div class="text-sm text-gray-300">
+              ${this.character.inventory.map(item => `
+                <div class="flex justify-between mb-1">
+                  <span title="${item.description}">${item.name}</span>
+                  ${item.quantity > 1 
+                    ? `<span class="text-xs bg-blue-900 bg-opacity-50 px-2 rounded">${item.type} x${item.quantity}</span>`
+                    : `<span class="text-xs bg-blue-900 bg-opacity-50 px-2 rounded">${item.type}</span>`
+                  }
+                </div>
+              `).join('')}
+              <div class="flex justify-between mb-1">
+                <span>Gold Coins</span>
+                <span class="text-xs">${this.character.gold}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      },
+      
+      // Render a scene in the game interface
+      renderScene: function(sceneId) {
+        const scene = gameData.scenes[sceneId];
+        if (!scene) return;
+        
+        // Update character's current scene
+        if (this.character) {
+          this.character.currentSceneId = sceneId;
+        }
+        
+        // Track visited scenes
+        if (!this.progress.visitedScenes.includes(sceneId)) {
+          this.progress.visitedScenes.push(sceneId);
+        }
+        
+        // Update last interaction time
+        this.progress.lastUpdated = new Date().toISOString();
+        
+        // Update scene title
+        const titleElement = document.getElementById('scene-title');
+        if (titleElement) {
+          titleElement.textContent = scene.title;
+        }
+        
+        // Update scene content
+        const contentElement = document.getElementById('scene-content');
+        if (contentElement) {
+          contentElement.innerHTML = scene.content.map(paragraph => `<p>${paragraph}</p>`).join('');
+        }
+        
+        // Update scene choices
+        const choicesElement = document.getElementById('scene-choices');
+        if (choicesElement) {
+          choicesElement.innerHTML = '';
+          
+          scene.choices.forEach(choice => {
+            // Check if this choice should be available based on character traits
+            let isAvailable = true;
+            let disabledReason = "";
+            
+            // Check stat requirements
+            if (choice.requiredStats) {
+              Object.entries(choice.requiredStats).forEach(([stat, requiredValue]) => {
+                if (this.character[stat] < requiredValue) {
+                  isAvailable = false;
+                  disabledReason = `Requires ${stat.toUpperCase()}: ${requiredValue}`;
+                }
+              });
+            }
+            
+            // Check race requirements
+            if (choice.requiredRace && !choice.requiredRace.includes(this.character.race)) {
+              isAvailable = false;
+              disabledReason = `Only available to: ${choice.requiredRace.join(', ')}`;
+            }
+            
+            // Check class requirements
+            if (choice.requiredClass && !choice.requiredClass.includes(this.character.class)) {
+              isAvailable = false;
+              disabledReason = `Only available to: ${choice.requiredClass.join(', ')}`;
+            }
+            
+            // Check item requirements
+            if (choice.requiredItems) {
+              for (const itemId of choice.requiredItems) {
+                const hasItem = this.character.inventory.some(item => item.id === itemId);
+                if (!hasItem) {
+                  isAvailable = false;
+                  const itemName = this.getItemNameById(itemId);
+                  disabledReason = `Requires: ${itemName || itemId}`;
+                  break;
+                }
+              }
+            }
+            
+            const choiceBtn = document.createElement('button');
+            
+            if (isAvailable) {
+              choiceBtn.className = 'btn btn-primary text-left p-3 hover:bg-blue-700 transition-colors';
+              choiceBtn.dataset.choiceId = choice.id;
+              
+              // Add special styling if this is a race or class-specific choice
+              if (choice.requiredRace || choice.requiredClass) {
+                choiceBtn.classList.add('border-2', 'border-yellow-500');
+              }
+              
+              choiceBtn.innerHTML = `
+                <div class="font-bold">${choice.text}</div>
+                <div class="text-sm text-blue-200">${choice.description}</div>
+              `;
+            } else {
+              // Create a disabled version of the button
+              choiceBtn.className = 'btn text-left p-3 bg-gray-700 text-gray-400 opacity-75 cursor-not-allowed';
+              
+              choiceBtn.innerHTML = `
+                <div class="font-bold">${choice.text}</div>
+                <div class="text-sm text-gray-500">${choice.description}</div>
+                <div class="text-xs text-red-400 mt-1">${disabledReason}</div>
+              `;
+            }
+            
+            choicesElement.appendChild(choiceBtn);
+          });
+        }
+        
+        // Save the game if this is a checkpoint
+        if (scene.checkpoint) {
+          this.saveGame();
+        }
+      },
+      
+      // Helper to get item name by ID
+      getItemNameById: function(itemId) {
+        for (const char of gameData.characters) {
+          const item = char.inventory.find(i => i.id === itemId);
+          if (item) return item.name;
+        }
+        
+        // Also check the player's inventory
+        if (this.character) {
+          const item = this.character.inventory.find(i => i.id === itemId);
+          if (item) return item.name;
+        }
+        
+        return null;
+      },
+      
+      // Process a choice
+      processChoice: function(choiceId) {
+        const currentScene = gameData.scenes[this.character.currentSceneId];
+        if (!currentScene) return;
+        
+        const choice = currentScene.choices.find(c => c.id === choiceId);
+        if (!choice) return;
+        
+        // Check for skill checks if they exist
+        if (choice.requiredStats) {
+          let passedCheck = true;
+          let failMessage = "";
+          
+          // Check each required stat
+          Object.entries(choice.requiredStats).forEach(([stat, requiredValue]) => {
+            if (this.character[stat] < requiredValue) {
+              passedCheck = false;
+              failMessage = `Your ${stat.toUpperCase()} is too low for this action!`;
+            }
+          });
+          
+          // Check race requirements
+          if (choice.requiredRace && !choice.requiredRace.includes(this.character.race)) {
+            passedCheck = false;
+            failMessage = `Only ${choice.requiredRace.join(' or ')} can perform this action!`;
+          }
+          
+          // Check class requirements
+          if (choice.requiredClass && !choice.requiredClass.includes(this.character.class)) {
+            passedCheck = false;
+            failMessage = `Only ${choice.requiredClass.join(' or ')} can perform this action!`;
+          }
+          
+          // Check item requirements
+          if (choice.requiredItems) {
+            for (const itemId of choice.requiredItems) {
+              const hasItem = this.character.inventory.some(item => item.id === itemId);
+              if (!hasItem) {
+                passedCheck = false;
+                failMessage = `You're missing a required item for this action!`;
+                break;
+              }
+            }
+          }
+          
+          // If check failed, show message and return
+          if (!passedCheck) {
+            this.showToast("Skill Check Failed", failMessage);
+            return;
+          }
+        }
+        
+        // Award some experience for making choices (more for challenging ones)
+        let expReward = 5; // Base XP for any choice
+        
+        // More XP if there were skill requirements
+        if (choice.requiredStats || choice.requiredRace || choice.requiredClass || choice.requiredItems) {
+          expReward += 10;
+        }
+        
+        this.character.experience += expReward;
+        
+        // Check for level up
+        if (this.character.experience >= this.character.level * 100) {
+          this.levelUp();
+        }
+        
+        // Reduce ability cooldowns
+        if (this.character.abilities) {
+          this.character.abilities.forEach(ability => {
+            if (ability.cooldown > 0) {
+              ability.cooldown--;
+            }
+          });
+        }
+        
+        // Apply consequences
+        if (choice.consequences) {
+          // Health change
+          if (choice.consequences.healthChange) {
+            this.character.health += choice.consequences.healthChange;
+            // Ensure health doesn't exceed max or drop below 0
+            this.character.health = Math.min(this.character.maxHealth, Math.max(0, this.character.health));
+          }
+          
+          // Mana change
+          if (choice.consequences.manaChange) {
+            this.character.mana += choice.consequences.manaChange;
+            // Ensure mana doesn't exceed max or drop below 0
+            this.character.mana = Math.min(this.character.maxMana, Math.max(0, this.character.mana));
+          }
+          
+          // Experience change (additional to base rewards)
+          if (choice.consequences.experienceChange) {
+            this.character.experience += choice.consequences.experienceChange;
+            // Check for level up again in case this pushed us over
+            if (this.character.experience >= this.character.level * 100) {
+              this.levelUp();
+            }
+          }
+          
+          // Gold change
+          if (choice.consequences.goldChange) {
+            this.character.gold += choice.consequences.goldChange;
+            this.character.gold = Math.max(0, this.character.gold); // Can't have negative gold
+          }
+          
+          // Add items
+          if (choice.consequences.addItems) {
+            choice.consequences.addItems.forEach(itemToAdd => {
+              const existingItem = this.character.inventory.find(i => i.id === itemToAdd.id);
+              
+              if (existingItem) {
+                existingItem.quantity += itemToAdd.quantity;
+              } else {
+                this.character.inventory.push({...itemToAdd});
+              }
+            });
+          }
+          
+          // Remove items
+          if (choice.consequences.removeItems) {
+            choice.consequences.removeItems.forEach(itemId => {
+              const index = this.character.inventory.findIndex(i => i.id === itemId);
+              if (index !== -1) {
+                if (this.character.inventory[index].quantity > 1) {
+                  this.character.inventory[index].quantity--;
+                } else {
+                  this.character.inventory.splice(index, 1);
+                }
+              }
+            });
+          }
+          
+          // Add status effects
+          if (choice.consequences.addStatusEffects) {
+            choice.consequences.addStatusEffects.forEach(effectToAdd => {
+              const existingEffect = this.character.statusEffects.find(e => e.id === effectToAdd.id);
+              
+              if (existingEffect) {
+                existingEffect.duration = effectToAdd.duration; // Reset duration
+              } else {
+                this.character.statusEffects.push({...effectToAdd});
+              }
+            });
+          }
+          
+          // Remove status effects
+          if (choice.consequences.removeStatusEffects) {
+            choice.consequences.removeStatusEffects.forEach(effectId => {
+              const index = this.character.statusEffects.findIndex(e => e.id === effectId);
+              if (index !== -1) {
+                this.character.statusEffects.splice(index, 1);
+              }
+            });
+          }
+          
+          // Stat changes
+          if (choice.consequences.statChanges) {
+            Object.entries(choice.consequences.statChanges).forEach(([stat, change]) => {
+              if (this.character[stat] !== undefined) {
+                this.character[stat] += change;
+              }
+            });
+          }
+          
+          // Ability cooldowns
+          if (choice.consequences.abilityCooldowns) {
+            Object.entries(choice.consequences.abilityCooldowns).forEach(([abilityName, cooldown]) => {
+              const ability = this.character.abilities.find(a => a.name === abilityName);
+              if (ability) {
+                ability.cooldown = cooldown;
+              }
+            });
+          }
+        }
+        
+        // Transition to next scene
+        this.renderScene(choice.nextSceneId);
+        
+        // Update character panel to reflect changes
+        this.renderCharacterPanel();
+      },
+      
+      // Level up the character
+      levelUp: function() {
+        this.character.level++;
+        this.character.experience = 0; // Reset experience
+        
+        // Increase base stats
+        this.character.maxHealth += 10;
+        this.character.health = this.character.maxHealth; // Heal to full on level up
+        this.character.maxMana += 5;
+        this.character.mana = this.character.maxMana; // Restore full mana
+        
+        // Increase primary stats based on class
+        switch(this.character.class) {
+          case "Warrior":
+            this.character.strength += 2;
+            this.character.constitution += 1;
+            break;
+          case "Ranger":
+            this.character.dexterity += 2;
+            this.character.wisdom += 1;
+            break;
+          case "Cleric":
+            this.character.wisdom += 2;
+            this.character.constitution += 1;
+            break;
+          case "Rogue":
+            this.character.dexterity += 2;
+            this.character.charisma += 1;
+            break;
+          default:
+            // Generic increase for other classes
+            this.character.strength += 1;
+            this.character.dexterity += 1;
+        }
+        
+        // Show level up notification
+        this.showToast("Level Up!", `${this.character.name} has reached level ${this.character.level}!`);
+      },
+      
+      // Switch between character selection and game interface
+      switchToGameInterface: function() {
+        document.getElementById('character-selection').classList.add('hidden');
+        document.getElementById('game-interface').classList.remove('hidden');
+        
+        // Render initial scene and character panel
+        this.renderScene(this.character.currentSceneId);
+        this.renderCharacterPanel();
+      },
+      
+      switchToCharacterSelection: function() {
+        document.getElementById('game-interface').classList.add('hidden');
+        document.getElementById('character-selection').classList.remove('hidden');
+      },
+      
+      // Event listeners
+      attachEventListeners: function() {
+        // Character selection
+        document.querySelector('.grid').addEventListener('click', (e) => {
+          const card = e.target.closest('[data-character-id]');
+          if (card) {
+            const characterId = card.dataset.characterId;
+            this.character = this.createCharacterFromTemplate(characterId);
+            this.renderCharacterSelection();
+          }
+        });
+        
+        // Start game button
+        document.getElementById('start-game-btn').addEventListener('click', () => {
+          if (this.character) {
+            this.switchToGameInterface();
+            this.showToast('Adventure Begins!', `${this.character.name}'s journey has begun.`);
+          }
+        });
+        
+        // Choice selection
+        document.getElementById('scene-choices').addEventListener('click', (e) => {
+          const choiceBtn = e.target.closest('[data-choice-id]');
+          if (choiceBtn) {
+            const choiceId = choiceBtn.dataset.choiceId;
+            
+            // Create a small "click" effect for feedback
+            choiceBtn.classList.add('scale-95', 'opacity-90');
+            setTimeout(() => {
+              choiceBtn.classList.remove('scale-95', 'opacity-90');
+            }, 100);
+            
+            this.processChoice(choiceId);
+          } else if (e.target.closest('button:not([data-choice-id])')) {
+            // This is a disabled button - show the reason as toast
+            const disabledText = e.target.closest('button').querySelector('.text-red-400')?.textContent;
+            if (disabledText) {
+              this.showToast("Cannot Select This Option", disabledText);
+            }
+          }
+        });
+        
+        // Save game button
+        document.getElementById('save-game-btn').addEventListener('click', () => {
+          this.saveGame();
+          this.showToast('Game Saved', 'Your progress has been saved successfully.');
+        });
+      },
+      
+      // Save/Load Game
+      saveGame: function() {
+        if (!this.character) return;
+        
+        const saveData = {
+          character: this.character,
+          progress: this.progress
+        };
+        
+        localStorage.setItem('dnd-adventure-save', JSON.stringify(saveData));
+      },
+      
+      loadSavedGame: function() {
+        const savedGame = localStorage.getItem('dnd-adventure-save');
+        if (!savedGame) return;
+        
+        try {
+          const saveData = JSON.parse(savedGame);
+          this.character = saveData.character;
+          this.progress = saveData.progress;
+          
+          if (this.character) {
+            this.renderCharacterSelection();
+          }
+        } catch (error) {
+          console.error('Failed to load saved game:', error);
+        }
+      },
+      
+      // Toast notifications
+      showToast: function(title, message, duration = 3000) {
+        const toast = document.getElementById('toast');
+        const toastTitle = document.getElementById('toast-title');
+        const toastMessage = document.getElementById('toast-message');
+        
+        toastTitle.textContent = title;
+        toastMessage.textContent = message;
+        
+        toast.style.display = 'block';
+        
+        setTimeout(() => {
+          toast.style.display = 'none';
+        }, duration);
+      }
+    };
+    
+    // Initialize the game when the DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      game.init();
+    });
+  </script>
+</body>
+</html>
